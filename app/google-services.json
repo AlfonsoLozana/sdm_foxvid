@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1081705405562",
+    "firebase_url": "https://foxvid-62452.firebaseio.com",
+    "project_id": "foxvid-62452",
+    "storage_bucket": "foxvid-62452.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1081705405562:android:585809bdee81aba00d6fc3",
+        "android_client_info": {
+          "package_name": "com.uniovi.foxvid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1081705405562-q5di8dn724gihs35vbr5325hsi2deq7t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBErd7Iz9D_X-NvMv7Bqn9z5L1__Ef-5lo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1081705405562-q5di8dn724gihs35vbr5325hsi2deq7t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
