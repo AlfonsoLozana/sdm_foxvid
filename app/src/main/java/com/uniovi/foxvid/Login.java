@@ -28,13 +28,14 @@ import com.google.firebase.auth.GoogleAuthProvider;
 public class Login extends AppCompatActivity {
 
     private final static int RC_SIGN_IN = 1;
+    public final static String USER_EMAIL = "user_email";
 
 
     private  GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
 
     //Componentes
-    SignInButtonImpl loginButton;
+    Button loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class Login extends AppCompatActivity {
          mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         //GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
 
-        loginButton =  (SignInButtonImpl)findViewById(R.id.btGoogle);
+        loginButton =  (Button)findViewById(R.id.btGoogle);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,7 +102,9 @@ public class Login extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = mAuth.getCurrentUser();
                             //updateUI(user);
+                            loadMainActivity(user);
                             System.out.println("Usuario: " +  user.getEmail());
+
                         } else {
                             // If sign in fails, display a message to the user.
                             System.out.println("Error");
@@ -111,5 +114,11 @@ public class Login extends AppCompatActivity {
                         // ...
                     }
                 });
+    }
+
+    private void loadMainActivity(FirebaseUser user){
+        Intent intent = new Intent(this,MainActivity.class);
+        intent.putExtra(USER_EMAIL,user);
+        startActivity(intent);
     }
 }
