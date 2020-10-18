@@ -3,8 +3,11 @@ package com.uniovi.foxvid;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -43,28 +46,34 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
 
-        // Initialize Firebase Auth
-        mAuth = FirebaseAuth.getInstance();
 
+            mAuth = FirebaseAuth.getInstance();
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
+            FirebaseUser user = mAuth.getCurrentUser();
 
-         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        //GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+            if (user != null) {
+                loadMainActivity(user);
+            } else {
+                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build();
 
-        loginButton =  (Button)findViewById(R.id.btGoogle);
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signIn();
+                mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+                mGoogleSignInClient.signOut();
+                //GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+
+                loginButton = (Button) findViewById(R.id.btGoogle);
+                loginButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        signIn();
+                    }
+                });
             }
-        });
-
 
     }
+
     
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();

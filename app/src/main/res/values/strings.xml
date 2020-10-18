@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Foxvid</string>
+    <string name="prefs_file">com.uniovi.foxvid.PREFERENCE_FILE_KEY</string>
 </resources>
