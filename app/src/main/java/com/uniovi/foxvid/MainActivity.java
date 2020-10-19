@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private void loadLogActivity(){
         Intent intent = new Intent(this,Login.class);
         startActivity(intent);
+        finish();
     }
 
 }
