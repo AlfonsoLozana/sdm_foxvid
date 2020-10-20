@@ -1,9 +1,12 @@
-package com.uniovi.foxvid.vista;
+
+package com.uniovi.foxvid;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,14 +17,13 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.uniovi.foxvid.R;
-
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.uniovi.foxvid.modelo.User;
+import com.uniovi.foxvid.vista.Login;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        FirebaseUser user = this.getIntent().getParcelableExtra(Login.USER_EMAIL);
+        User user = this.getIntent().getParcelableExtra(Login.USER_EMAIL);
         TextView email =  (TextView)findViewById(R.id.idEmail);
         email.setText(user.getEmail());
 
