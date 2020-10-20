@@ -54,10 +54,10 @@ public class DatabaseConnection {
         posts.put("text", post.getText());
         posts.put("uid", post.getUser().getUid());
         posts.put("localization", post.getLocalization());
-        posts.put("date", post.getDate().getTime()+"");
+        posts.put("date", post.getDate());
 
 
-        db.collection("users").document(post.getUser().getUid()+post.getDate().getTime())
+        db.collection("users").document(post.getUser().getUid()+post.getDate())
                 .set(posts)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
