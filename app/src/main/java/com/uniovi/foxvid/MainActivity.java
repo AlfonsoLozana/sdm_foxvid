@@ -4,17 +4,23 @@ package com.uniovi.foxvid;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,6 +43,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.core.OrderBy;
 import com.google.firestore.v1.StructuredQuery;
+import com.uniovi.foxvid.modelo.Coordinate;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
 import com.uniovi.foxvid.vista.Login;
@@ -57,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button btLogOut;
     private Button btPost;
+    private Coordinate coordinate;
 
     private TextView txtPost;
     private  List<Post> listPost;
@@ -69,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        updateLocate();
         btLogOut = (Button)findViewById(R.id.idLogOut);
         btPost = (Button)findViewById(R.id.idBtPost);
         txtPost = (TextView)findViewById(R.id.idTxtPost);
@@ -85,10 +93,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 post();
+                //updateLocate();
             }
         });
 
         listPost= new ArrayList<Post>();
+        coordinate = new Coordinate(0.0,0.0);
 
         loadPost();
 
@@ -103,29 +113,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void loadPost(){
-
         listPostView.setHasFixedSize(true);
-
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         listPostView.setLayoutManager(layoutManager);
-
-
-        //rellenarList();
         updateValues();
-        //readPostDabase();
-
-       /** ListaPostAdapter lpAdapter = new ListaPeliculaAdapter(listPeli,
-                new ListaPeliculaAdapter.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(Post post) {
-                        c//lickOnItem(pelicula);
-                    }
-                });
-
-
-        listaPeliView.setAdapter(ldAdapter);**/
-
-
     }
 
     private void updateValues(){
@@ -143,12 +134,13 @@ public class MainActivity extends AppCompatActivity {
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
+                                    if(coordinate.checkDistancia(new Double(dc.getDocument().get("lat").toString()),new Double(dc.getDocument().get("lon").toString())))
                                     listPost.add(new Post(null,
                                             dc.getDocument().get("post").toString(),
                                             //public User(String uid, String name, String email, Uri photo)
                                             new User(dc.getDocument().get("userUid").toString(),null, dc.getDocument().get("userEmail").toString() ,null),
                                             (Timestamp)dc.getDocument().get("date"),
-                                            null
+                                            new Coordinate(new Double(dc.getDocument().get("lat").toString()),new Double(dc.getDocument().get("lat").toString()))
                                     ));
                                     listPostView.setAdapter(new ListaPostAdapter(listPost,null));
                                     break;
@@ -212,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void post(){
+        //updateLocate();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String uuid = UUID.randomUUID().toString();
         Map<String, Object> posts = new HashMap<>();
@@ -220,7 +213,8 @@ public class MainActivity extends AppCompatActivity {
         posts.put("userUid", FirebaseAuth.getInstance().getCurrentUser().getUid());
         posts.put("userEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
         posts.put("date", Timestamp.now());
-
+        posts.put("lat", coordinate.getLat());
+        posts.put("lon", coordinate.getLon());
         txtPost.setText("");
 
 
@@ -238,6 +232,31 @@ public class MainActivity extends AppCompatActivity {
                         //Log.w(TAG, "Error writing document", e);
                     }
                 });
+    }
+
+    private void updateLocate() {
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+
+                            coordinate.setLat(location.getLatitude());
+                            coordinate.setLon(location.getLongitude());
+
+                        }
+
+                    }
+                });
+
     }
 
 

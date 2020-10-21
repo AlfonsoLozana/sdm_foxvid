@@ -9,12 +9,12 @@ public class Post {
     private String text;
     private User user;
     private Timestamp date;
-    private String localization;
+    private Coordinate localization;
 
     public Post() {
     }
 
-    public Post(String title, String text, User user, Timestamp  date, String localization) {
+    public Post(String title, String text, User user, Timestamp  date, Coordinate localization) {
         this.title = title;
         this.text = text;
         this.user = user;
@@ -54,11 +54,11 @@ public class Post {
         this.date = date;
     }
 
-    public String getLocalization() {
+    public Coordinate getLocalization() {
         return localization;
     }
 
-    public void setLocalization(String localization) {
+    public void setLocalization(Coordinate localization) {
         this.localization = localization;
     }
 }
