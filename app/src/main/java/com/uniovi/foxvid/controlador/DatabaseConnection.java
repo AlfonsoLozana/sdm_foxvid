@@ -73,9 +73,4 @@ public class DatabaseConnection {
                 });
     }
 
-    public Post getPostsDB() {
-
-
-        return new Post();
-    }
 }
