@@ -49,12 +49,12 @@ public class DatabaseConnection {
     }
 
     public void addPostDB(Post post) {
-        Map<String, String> posts = new HashMap<>();
+        Map<String, Object> posts = new HashMap<>();
         posts.put("title", post.getTitle());
         posts.put("text", post.getText());
         posts.put("uid", post.getUser().getUid());
         posts.put("localization", post.getLocalization());
-        posts.put("date", post.getDate());
+        posts.put("date", post.getDate().toString());
 
 
         db.collection("users").document(post.getUser().getUid()+post.getDate())

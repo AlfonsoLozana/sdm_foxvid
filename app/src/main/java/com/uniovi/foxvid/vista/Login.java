@@ -24,6 +24,10 @@ import com.uniovi.foxvid.MainActivity;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.User;
 
+import java.util.Date;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
+
 public class Login extends AppCompatActivity {
 
     private final static int RC_SIGN_IN = 1;
@@ -46,6 +50,7 @@ public class Login extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         user = mAuth.getCurrentUser();
+
 
         if (user != null) {
 

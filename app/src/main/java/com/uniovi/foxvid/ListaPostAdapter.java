@@ -10,10 +10,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.Timestamp;
 import com.uniovi.foxvid.modelo.Post;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.PostViewHolder>{
 
@@ -74,7 +76,7 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
             public void bindUser(final Post post, final OnItemClickListener listener) {
                 postTxt.setText(post.getText());
                 //fecha.setText(pelicula.getFecha());
-                fecha.setText(post.getDate());
+                fecha.setText(getTime(post.getDate()));
                 user.setText(post.getUser().getEmail());
                 // cargar imagen
                 //Picasso.get().load(pelicula.getUrlCaratula()).into(imagen);
@@ -83,8 +85,25 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
 
             }
 
+            private String getTime(Timestamp t){
+                long diferencia=new Date().getTime()- t.toDate().getTime();
+                long segundos = TimeUnit.MILLISECONDS.toSeconds(diferencia);
+                if(segundos <= 60){
+                    return segundos + " s";
+                }else if(segundos <= 3600)
+                    return TimeUnit.MILLISECONDS.toMinutes(diferencia) + " min";
+                else if(segundos <= 86400)
+                    return TimeUnit.MILLISECONDS.toHours(diferencia) + " h";
+                else
+                    return TimeUnit.MILLISECONDS.toDays(diferencia) + " d";
+
+            }
+
 
         }
+
+
+
 
 
 

@@ -1,20 +1,20 @@
 package com.uniovi.foxvid.modelo;
 
 
-import java.sql.Timestamp;
+import com.google.firebase.Timestamp;
 
 public class Post {
 
     private String title;
     private String text;
     private User user;
-    private String date;
+    private Timestamp date;
     private String localization;
 
     public Post() {
     }
 
-    public Post(String title, String text, User user, String  date, String localization) {
+    public Post(String title, String text, User user, Timestamp  date, String localization) {
         this.title = title;
         this.text = text;
         this.user = user;
@@ -46,11 +46,11 @@ public class Post {
         this.user = user;
     }
 
-    public String getDate() {
+    public Timestamp getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Timestamp date) {
         this.date = date;
     }
 

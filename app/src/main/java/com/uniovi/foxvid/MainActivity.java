@@ -32,8 +32,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.core.OrderBy;
+import com.google.firestore.v1.StructuredQuery;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
 import com.uniovi.foxvid.vista.Login;
@@ -48,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -127,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateValues(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("post")
-
+                .orderBy("date", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot snapshots,
@@ -136,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
                             //Log.w(TAG, "listen:error", e);
                             return;
                         }
-
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
@@ -144,12 +147,10 @@ public class MainActivity extends AppCompatActivity {
                                             dc.getDocument().get("post").toString(),
                                             //public User(String uid, String name, String email, Uri photo)
                                             new User(dc.getDocument().get("userUid").toString(),null, dc.getDocument().get("userEmail").toString() ,null),
-                                            dc.getDocument().get("date").toString(),
+                                            (Timestamp)dc.getDocument().get("date"),
                                             null
                                     ));
-                                    reverselistPost = listPost;
-                                    Collections.reverse(reverselistPost);
-                                    listPostView.setAdapter(new ListaPostAdapter(reverselistPost,null));
+                                    listPostView.setAdapter(new ListaPostAdapter(listPost,null));
                                     break;
                                 case MODIFIED:
                                     //Log.d(TAG, "Modified city: " + dc.getDocument().getData());
@@ -165,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void readPostDabase() {
+   /* private void readPostDabase() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("post")
                 .get()
@@ -196,13 +197,9 @@ public class MainActivity extends AppCompatActivity {
                             //Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
-                }).onSuccessTask(showPost());
-    }
+                });
+    }*/
 
-    private SuccessContinuation<QuerySnapshot, Object> showPost() {
-
-        return null;
-    }
 
     protected void logOut(){
         FirebaseAuth.getInstance().signOut();
@@ -217,12 +214,12 @@ public class MainActivity extends AppCompatActivity {
     private void post(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String uuid = UUID.randomUUID().toString();
-        Map<String, String> posts = new HashMap<>();
+        Map<String, Object> posts = new HashMap<>();
         posts.put("uid",uuid );
         posts.put("post", txtPost.getText().toString());
         posts.put("userUid", FirebaseAuth.getInstance().getCurrentUser().getUid());
         posts.put("userEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
-        posts.put("date", "23/12/99");
+        posts.put("date", Timestamp.now());
 
         txtPost.setText("");
 
@@ -243,4 +240,17 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+
+   /* private void filtarPorUbicacion(long lat1, long lon1, long lat2, long lon2){
+            let rad = function (x) { return x * Math.PI / 180; }
+            var R = 6378.137; //Radio de la tierra en km
+            var dLat = rad(lat2 - lat1);
+            var dLong = rad(lon2 - lon1);
+            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLong / 2) * Math.sin(dLong / 2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            var d = R * c;
+            return d;
+        }
+
+    }*/
 }
