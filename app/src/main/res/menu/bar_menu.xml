@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="es.uniovi.eii.sdm.ShowMovie">
+    <item
+        android:id="@+id/nav_post"
+        android:icon="@android:drawable/stat_notify_chat"
+        android:title="Post" />
+    <item
+        android:id="@+id/nav_new_post"
+
+        android:icon="@android:drawable/ic_menu_send"
+        android:title="new post" />
+</menu>

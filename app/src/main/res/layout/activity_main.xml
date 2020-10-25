@@ -4,64 +4,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".vista.MainActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvPost"
-        android:layout_width="338dp"
-        android:layout_height="503dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="32dp"
-        app:layout_constraintBottom_toTopOf="@+id/idTxtPost"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/idLogOut" />
 
-    <TextView
-        android:id="@+id/idEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:text="TextView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/idLogOut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
-        android:text="Crear sesión"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/idEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:text="TextView" />
 
-    <EditText
-        android:id="@+id/idTxtPost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="24dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/idBtPost"
-        app:layout_constraintStart_toStartOf="parent" />
+        <Button
+            android:id="@+id/idLogOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:text="Crear sesión" />
 
-    <Button
-        android:id="@+id/idBtPost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
-        android:text="Publicar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <include layout="@layout/content_scrolling_buttons" />
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

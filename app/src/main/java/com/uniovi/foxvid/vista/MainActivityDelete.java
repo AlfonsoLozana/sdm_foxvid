@@ -1,5 +1,14 @@
 
-package com.uniovi.foxvid;
+package com.uniovi.foxvid.vista;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -8,59 +17,31 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.SuccessContinuation;
-import com.google.android.gms.tasks.Task;
-
-
-
-
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.core.OrderBy;
-import com.google.firestore.v1.StructuredQuery;
+import com.uniovi.foxvid.ListaPostAdapter;
+import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Coordinate;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
-import com.uniovi.foxvid.vista.Login;
-
-
-import org.w3c.dom.Document;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivityDelete extends AppCompatActivity {
 
     private Button btLogOut;
     private Button btPost;
@@ -68,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView txtPost;
     private  List<Post> listPost;
-    private  List<Post> reverselistPost;
 
     RecyclerView listPostView;
 
@@ -81,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         btLogOut = (Button)findViewById(R.id.idLogOut);
         btPost = (Button)findViewById(R.id.idBtPost);
         txtPost = (TextView)findViewById(R.id.idTxtPost);
-        listPostView = (RecyclerView) findViewById(R.id.rvPost);
+        //listPostView = (RecyclerView) findViewById(R.id.rvPost);
 
         btLogOut.setOnClickListener(new View.OnClickListener() {
             @Override

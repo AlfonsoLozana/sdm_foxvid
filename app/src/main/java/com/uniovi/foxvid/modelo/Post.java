@@ -1,9 +1,21 @@
 package com.uniovi.foxvid.modelo;
 
 
-import com.google.firebase.Timestamp;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Post {
+import androidx.annotation.Nullable;
+
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.uniovi.foxvid.ListaPostAdapter;
+
+public class Post implements Parcelable {
 
     private String title;
     private String text;
@@ -61,4 +73,21 @@ public class Post {
     public void setLocalization(Coordinate localization) {
         this.localization = localization;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(title);
+        parcel.writeString(text);
+        parcel.writeParcelable(user,i);
+        parcel.writeParcelable(date,i);
+        parcel.writeParcelable(localization,i);
+    }
+
+
+
 }

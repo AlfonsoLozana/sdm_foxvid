@@ -88,7 +88,10 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
             private String getTime(Timestamp t){
                 long diferencia=new Date().getTime()- t.toDate().getTime();
                 long segundos = TimeUnit.MILLISECONDS.toSeconds(diferencia);
-                if(segundos <= 60){
+                if(segundos < 0){
+                    return 0 + " s";
+                }
+                else if(segundos <= 60){
                     return segundos + " s";
                 }else if(segundos <= 3600)
                     return TimeUnit.MILLISECONDS.toMinutes(diferencia) + " min";

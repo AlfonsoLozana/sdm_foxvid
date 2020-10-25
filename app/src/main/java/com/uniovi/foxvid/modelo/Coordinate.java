@@ -1,18 +1,10 @@
 package com.uniovi.foxvid.modelo;
 
-import android.content.Context;
-import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
-
-import com.uniovi.foxvid.MainActivity;
-
-import java.util.Locale;
-
-public class Coordinate {
+public class Coordinate implements Parcelable {
 
     public static float  DISTANCE = 4000;
     private Double lat;
@@ -55,7 +47,19 @@ public class Coordinate {
         System.out.println(locationValue1.distanceTo(locationValue));
         System.out.println(locationValue1);
         System.out.println(locationValue);
-        return  locationValue1.distanceTo(locationValue) < DISTANCE ;
+        //return  locationValue1.distanceTo(locationValue) < DISTANCE ;
+        return true;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeDouble(lon);
+        parcel.writeDouble(lat);
     }
 }
 

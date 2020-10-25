@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Foxvid</string>
     <string name="prefs_file">com.uniovi.foxvid.PREFERENCE_FILE_KEY</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
