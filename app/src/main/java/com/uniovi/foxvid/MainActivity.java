@@ -1,47 +1,40 @@
 
 package com.uniovi.foxvid;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.SuccessContinuation;
-import com.google.android.gms.tasks.Task;
-
-
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.uniovi.foxvid.modelo.Coordinate;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
 import com.uniovi.foxvid.vista.Login;
 
-
-import org.w3c.dom.Document;
-
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,10 +44,11 @@ public class MainActivity extends AppCompatActivity {
 
     private Button btLogOut;
     private Button btPost;
+    private Coordinate coordinate;
 
     private TextView txtPost;
-    private List<Post> listPost;
-    private List<Post> reverselistPost;
+    private  List<Post> listPost;
+    private  List<Post> reverselistPost;
 
     RecyclerView listPostView;
 
@@ -63,10 +57,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        btLogOut = (Button) findViewById(R.id.idLogOut);
-        btPost = (Button) findViewById(R.id.idBtPost);
-        txtPost = (TextView) findViewById(R.id.idTxtPost);
+        updateLocate();
+        btLogOut = (Button)findViewById(R.id.idLogOut);
+        btPost = (Button)findViewById(R.id.idBtPost);
+        txtPost = (TextView)findViewById(R.id.idTxtPost);
         listPostView = (RecyclerView) findViewById(R.id.rvPost);
 
         btLogOut.setOnClickListener(new View.OnClickListener() {
@@ -79,50 +73,36 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 post();
+                //updateLocate();
             }
         });
 
-        listPost = new ArrayList<Post>();
+        listPost= new ArrayList<Post>();
+        coordinate = new Coordinate(0.0,0.0);
 
         loadPost();
 
 
         User user = this.getIntent().getParcelableExtra(Login.USER_EMAIL);
-        TextView email = (TextView) findViewById(R.id.idEmail);
+        TextView email =  (TextView)findViewById(R.id.idEmail);
         email.setText(user.getEmail());
 
 
+
+
     }
 
-    protected void loadPost() {
-
+    protected void loadPost(){
         listPostView.setHasFixedSize(true);
-
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         listPostView.setLayoutManager(layoutManager);
-
-
-        //rellenarList();
         updateValues();
-        //readPostDabase();
-
-        /** ListaPostAdapter lpAdapter = new ListaPeliculaAdapter(listPeli,
-         new ListaPeliculaAdapter.OnItemClickListener() {
-        @Override public void onItemClick(Post post) {
-        c//lickOnItem(pelicula);
-        }
-        });
-
-
-         listaPeliView.setAdapter(ldAdapter);**/
-
-
     }
 
-    private void updateValues() {
+    private void updateValues(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("post")
-
+                .orderBy("date", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot snapshots,
@@ -131,20 +111,18 @@ public class MainActivity extends AppCompatActivity {
                             //Log.w(TAG, "listen:error", e);
                             return;
                         }
-
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
+                                    if(coordinate.checkDistancia(new Double(dc.getDocument().get("lat").toString()),new Double(dc.getDocument().get("lon").toString())))
                                     listPost.add(new Post(null,
                                             dc.getDocument().get("post").toString(),
                                             //public User(String uid, String name, String email, Uri photo)
-                                            new User(dc.getDocument().get("userUid").toString(), null, dc.getDocument().get("userEmail").toString(), null),
-                                            dc.getDocument().get("date").toString(),
-                                            null
+                                            new User(dc.getDocument().get("userUid").toString(),null, dc.getDocument().get("userEmail").toString() ,null),
+                                            (Timestamp)dc.getDocument().get("date"),
+                                            new Coordinate(new Double(dc.getDocument().get("lat").toString()),new Double(dc.getDocument().get("lat").toString()))
                                     ));
-                                    reverselistPost = listPost;
-                                    Collections.reverse(reverselistPost);
-                                    listPostView.setAdapter(new ListaPostAdapter(reverselistPost, null));
+                                    listPostView.setAdapter(new ListaPostAdapter(listPost,null));
                                     break;
                                 case MODIFIED:
                                     //Log.d(TAG, "Modified city: " + dc.getDocument().getData());
@@ -160,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void readPostDabase() {
+   /* private void readPostDabase() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("post")
                 .get()
@@ -175,15 +153,15 @@ public class MainActivity extends AppCompatActivity {
                                 listPost.add(new Post(null,
                                         document.get("post").toString(),
                                         //public User(String uid, String name, String email, Uri photo)
-                                        new User(document.get("userUid").toString(), null, document.get("userEmail").toString(), null),
+                                        new User(document.get("userUid").toString(),null, document.get("userEmail").toString() ,null),
                                         document.get("date").toString(),
                                         null
-                                ));
+                                        ));
                             }
 
 
-                            listPostView.setAdapter(new ListaPostAdapter(listPost, null));
-                            listPost = new ArrayList<Post>();
+                            listPostView.setAdapter(new ListaPostAdapter(listPost,null));
+                            listPost= new ArrayList<Post>();
                             updateValues();
 
 
@@ -191,35 +169,32 @@ public class MainActivity extends AppCompatActivity {
                             //Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
-                }).onSuccessTask(showPost());
-    }
+                });
+    }*/
 
-    private SuccessContinuation<QuerySnapshot, Object> showPost() {
 
-        return null;
-    }
-
-    protected void logOut() {
+    protected void logOut(){
         FirebaseAuth.getInstance().signOut();
         loadLogActivity();
     }
-
-    private void loadLogActivity() {
-        Intent intent = new Intent(this, Login.class);
+    private void loadLogActivity(){
+        Intent intent = new Intent(this,Login.class);
         startActivity(intent);
         finish();
     }
 
-    private void post() {
+    private void post(){
+        //updateLocate();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String uuid = UUID.randomUUID().toString();
-        Map<String, String> posts = new HashMap<>();
-        posts.put("uid", uuid);
+        Map<String, Object> posts = new HashMap<>();
+        posts.put("uid",uuid );
         posts.put("post", txtPost.getText().toString());
         posts.put("userUid", FirebaseAuth.getInstance().getCurrentUser().getUid());
         posts.put("userEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
-        posts.put("date", "23/12/99");
-
+        posts.put("date", Timestamp.now());
+        posts.put("lat", coordinate.getLat());
+        posts.put("lon", coordinate.getLon());
         txtPost.setText("");
 
 
@@ -239,4 +214,42 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    private void updateLocate() {
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+
+                            coordinate.setLat(location.getLatitude());
+                            coordinate.setLon(location.getLongitude());
+
+                        }
+
+                    }
+                });
+
+    }
+
+
+   /* private void filtarPorUbicacion(long lat1, long lon1, long lat2, long lon2){
+            let rad = function (x) { return x * Math.PI / 180; }
+            var R = 6378.137; //Radio de la tierra en km
+            var dLat = rad(lat2 - lat1);
+            var dLong = rad(lon2 - lon1);
+            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLong / 2) * Math.sin(dLong / 2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            var d = R * c;
+            return d;
+        }
+
+    }*/
 }
