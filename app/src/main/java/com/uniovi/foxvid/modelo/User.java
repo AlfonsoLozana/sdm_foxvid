@@ -25,10 +25,12 @@ public class User implements Parcelable {
     }
 
     public User(FirebaseUser currentUser) {
-        this.uid = currentUser.getUid();
-        this.name = currentUser.getDisplayName();
-        this.email = currentUser.getEmail();
-        this.photo = currentUser.getPhotoUrl();
+        if(currentUser != null) {
+            this.uid = currentUser.getUid();
+            this.name = currentUser.getDisplayName();
+            this.email = currentUser.getEmail();
+            this.photo = currentUser.getPhotoUrl();
+        }
     }
 
     protected User(Parcel in) {
