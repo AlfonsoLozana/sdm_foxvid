@@ -17,6 +17,30 @@ public class Coordinate implements Parcelable {
     }
 
 
+    protected Coordinate(Parcel in) {
+        if (in.readByte() == 0) {
+            lat = null;
+        } else {
+            lat = in.readDouble();
+        }
+        if (in.readByte() == 0) {
+            lon = null;
+        } else {
+            lon = in.readDouble();
+        }
+    }
+
+    public static final Creator<Coordinate> CREATOR = new Creator<Coordinate>() {
+        @Override
+        public Coordinate createFromParcel(Parcel in) {
+            return new Coordinate(in);
+        }
+
+        @Override
+        public Coordinate[] newArray(int size) {
+            return new Coordinate[size];
+        }
+    };
 
     public Double getLat() {
         return lat;

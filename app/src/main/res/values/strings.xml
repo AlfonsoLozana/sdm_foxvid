@@ -3,4 +3,11 @@
     <string name="prefs_file">com.uniovi.foxvid.PREFERENCE_FILE_KEY</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="imagen_post">Imagen</string>
+    <string name="username">Nombre de usuario</string>
+    <string name="fecha">Fecha del post</string>
+    <string name="texto_post">Texto del post</string>
+    <string name="like_button">Boton de like</string>
+    <string name="number_of_likes">0</string>
+    <string name="dislike_button">Boton de dislike</string>
 </resources>
