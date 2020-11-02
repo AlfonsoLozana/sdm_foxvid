@@ -10,4 +10,5 @@
     <string name="like_button">Boton de like</string>
     <string name="number_of_likes">0</string>
     <string name="dislike_button">Boton de dislike</string>
+    <string name="new_post_hint">¿Qué está pasando?</string>
 </resources>

@@ -24,6 +24,7 @@ public class StatisticsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         View root =  inflater.inflate(R.layout.fragment_statistics, container, false);
+
         return root;
     }
 

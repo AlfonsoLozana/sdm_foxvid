@@ -23,7 +23,9 @@ public class NewsFragment extends Fragment {
                              Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         View root =  inflater.inflate(R.layout.fragment_news, container, false);
+
         return root;
     }
 }
