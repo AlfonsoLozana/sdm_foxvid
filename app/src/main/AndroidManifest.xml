@@ -2,13 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.uniovi.foxvid">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".vista.MainActivity"></activity>
+        <activity android:name=".vista.MainActivity" />
+
         <activity android:name=".vista.Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,20 +20,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".vista.NewPostActivity"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:parentActivityName=".vista.MainActivity"
+            android:windowSoftInputMode="adjustResize" />
 
         <service
             android:name=".vista.MainActivity"
-            android:foregroundServiceType="location">
-            <!-- Any inner elements would go here. -->
-        </service>
+            android:foregroundServiceType="location"></service>
     </application>
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
-
 
 </manifest>

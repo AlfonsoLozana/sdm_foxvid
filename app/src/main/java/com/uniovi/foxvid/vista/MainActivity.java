@@ -65,14 +65,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
         //User user = this.getIntent().getParcelableExtra(Login.USER_EMAIL);
 
         User user = new User(FirebaseAuth.getInstance();
         TextView email =  (TextView)findViewById(R.id.idEmail);
         email.setText(user.getEmail());
         */
-     
+
 
 
 

@@ -7,8 +7,13 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -34,31 +39,66 @@ public class NewPostActivity extends AppCompatActivity {
     private TextView txtPost;
     private Coordinate coordinate;
 
+    private Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_post);
 
+//        Toolbar myToolbar = (Toolbar) findViewById(R.id.topAppBarNewPost);
+//        setSupportActionBar(myToolbar);
+
+        toolbar = findViewById(R.id.new_post_toolbar);
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 //        View root =  inflater.inflate(R.layout.fragment_new_post, container, false);
-        btPost = (Button)findViewById(R.id.idBtPost);
+        //btPost = (Button)findViewById(R.id.btn_publish_post);
         txtPost = (TextView)findViewById(R.id.txtNewPost);
         coordinate = new Coordinate(0.0,0.0);
         updateLocate();
 
 
 
-        btPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                post();
-                updateLocate();
-            }
-        });
+//        btPost.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                post();
+//                updateLocate();
+//            }
+//        });
 
 //        return root;
     }
 
-       private void post(){
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.new_post_menu, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        switch (menuItem.getItemId()){
+            case R.id.home:
+                this.finish();
+                return true;
+
+            case R.id.btn_publish_post:
+                post();
+                this.finish();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+
+    private void post(){
         //updateLocate();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String uuid = UUID.randomUUID().toString();
