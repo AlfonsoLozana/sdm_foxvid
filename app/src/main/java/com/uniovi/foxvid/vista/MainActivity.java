@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -63,18 +64,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        User user = this.getIntent().getParcelableExtra(Login.USER_EMAIL);
+
+
+        //User user = this.getIntent().getParcelableExtra(Login.USER_EMAIL);
+
+        User user = new User(FirebaseAuth.getInstance();
         TextView email =  (TextView)findViewById(R.id.idEmail);
         email.setText(user.getEmail());
-
-
         */
+     
+
+
+
 
 
 
 
 
     }
+
+   @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toll_bar_menu, menu);
+        return true;
+    }
+
+
     private void loadPostView(){
         //Creamos el framento de información
         PostFragment info = new PostFragment();

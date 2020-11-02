@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="es.uniovi.eii.sdm.ShowMovie">
+    <item
+        android:title="Ajustes"
+        android:id="@+id/settings"
+        android:icon="@android:drawable/ic_menu_add"
+        />
+
+    <item
+        android:id="@+id/search"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="Ajustes"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/filter"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="Ajustes"
+        app:showAsAction="always" />
+
+
+
+</menu>
