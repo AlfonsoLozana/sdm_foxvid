@@ -4,26 +4,26 @@ package com.uniovi.foxvid.vista;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
-import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import com.google.firebase.auth.FirebaseAuth;
 
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 
-import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Post;
@@ -40,13 +40,13 @@ public class MainActivity extends AppCompatActivity {
 
     private Button btLogOut;
 
-    private  List<Post> listPost;
+    private List<Post> listPost;
     private Toolbar toolbar;
     private ImageButton btProfile;
     private FirebaseAuth mAuth;
 
     private User user;
-    private DrawerLayout drawerLayout;
+    Dialog customDialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,22 +57,23 @@ public class MainActivity extends AppCompatActivity {
 
         user = new User(mAuth.getCurrentUser());
 
-       //Gestion de la botonera
+        //Gestion de la botonera
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        drawerLayout = (DrawerLayout)findViewById(R.id.idDrawerLayout);
-
         btProfile = (ImageButton) findViewById(R.id.btProfile);
         Picasso.get().load(user.getPhoto()).into(btProfile);
-      btProfile.setOnClickListener(
+        btProfile.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        drawerLayout.openDrawer(GravityCompat.START);
+                        openPopUpWindow();
                     }
                 }
         );
+
+
+
 
         loadPostView();
 
@@ -97,19 +98,36 @@ public class MainActivity extends AppCompatActivity {
         */
 
 
-
-
-
-
-
-
-
     }
 
 
+    private void openPopUpWindow(){
+        customDialog = new Dialog(this);
+        customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        customDialog.setCancelable(true);
+        customDialog.setContentView(R.layout.fragment_log_out);
+
+        TextView titulo = (TextView) customDialog.findViewById(R.id.txtUserDialog);
+        if(user!=null)
+            titulo.setText(user.getName());
+        else
+            titulo.setText("Usuario");
 
 
-    private void loadPostView(){
+        ((Button) customDialog.findViewById(R.id.btnLogOut)).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view)
+            {
+                logOut();
+
+            }
+        });
+
+        customDialog.show();
+    }
+
+    private void loadPostView() {
         //Creamos el framento de información
         PostFragment info = new PostFragment();
         Bundle args = new Bundle();
@@ -118,26 +136,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void loadNewsView(){
+    private void loadNewsView() {
         NewsFragment info = new NewsFragment();
         Bundle args = new Bundle();
         info.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, info).commit();
     }
 
-    private void loadStatistics(){
+    private void loadStatistics() {
         StatisticsFragment info = new StatisticsFragment();
         Bundle args = new Bundle();
         info.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, info).commit();
     }
 
-    protected void logOut(){
+    protected void logOut() {
         FirebaseAuth.getInstance().signOut();
         loadLogActivity();
     }
-    private void loadLogActivity(){
-        Intent intent = new Intent(this,Login.class);
+
+    private void loadLogActivity() {
+        Intent intent = new Intent(this, Login.class);
         startActivity(intent);
         finish();
     }
@@ -146,14 +165,14 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         //getMenuInflater().inflate(R.menu.new_post_menu, menu);
-       // getMenuInflater().inflate(R.menu.toll_bar_menu, menu);
+        // getMenuInflater().inflate(R.menu.toll_bar_menu, menu);
         return true;
     }
 
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem){
-        switch (menuItem.getItemId()){
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
             /*case R.id.home:
                 this.finish();
                 return true;*/
@@ -168,16 +187,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-                switch (item.getItemId()) {
-                    case R.id.nav_post:
-                                loadPostView();
-                        return true;
-                    case R.id.nav_statistics:
-                        loadStatistics();
-                        return true;
-                    case R.id.nav_news:
-                        loadNewsView();
-                        return true;
+            switch (item.getItemId()) {
+                case R.id.nav_post:
+                    loadPostView();
+                    return true;
+                case R.id.nav_statistics:
+                    loadStatistics();
+                    return true;
+                case R.id.nav_news:
+                    loadNewsView();
+                    return true;
 
             }
             return false;

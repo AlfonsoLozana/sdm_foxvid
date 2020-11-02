@@ -6,15 +6,31 @@
     android:layout_height="match_parent"
     tools:context=".vista.MainActivity">
 
+    <!--<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+    <!--    xmlns:tools="http://schemas.android.com/tools"-->
+    <!--    android:id="@+id/idDrawerLayout"-->
+    <!--    android:layout_width="match_parent"-->
+    <!--    android:layout_height="match_parent"-->
+    <!--    android:fitsSystemWindows="true"-->
+    <!--    tools:context=".vista.MainActivity">-->
+
+    <!--    <com.google.android.material.navigation.NavigationView-->
+    <!--        android:id="@+id/sideNavView"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:layout_gravity="start"-->
+    <!--        app:menu="@menu/user_options_menu"-->
+    <!--        android:fitsSystemWindows="true"/>-->
 
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:background="#000"
         android:theme="@style/AppBarOverlay"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="#000">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <LinearLayout
@@ -23,14 +39,13 @@
             android:orientation="horizontal">
 
 
-                <ImageButton
-                    android:id="@+id/btProfile"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_margin="5dp"
-                    android:layout_height="match_parent"
-                    android:background="#000"
-                    />
+            <ImageButton
+                android:id="@+id/btProfile"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="#000" />
 
 
             <ImageView
@@ -42,10 +57,9 @@
 
             <Button
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="match_parent"
-                android:background="#000"
-                />
+                android:layout_weight="1"
+                android:background="#000" />
 
 
         </LinearLayout>
@@ -53,39 +67,21 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
         android:background="#fff"
         android:orientation="vertical"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="?attr/actionBarSize"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <include layout="@layout/content_scrolling_buttons" />
 
 
-
-        <androidx.drawerlayout.widget.DrawerLayout
-            android:id="@+id/idDrawerLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.navigation.NavigationView
-                android:id="@+id/navigation"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="start|left" />
-        </androidx.drawerlayout.widget.DrawerLayout>
-
-
     </LinearLayout>
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
