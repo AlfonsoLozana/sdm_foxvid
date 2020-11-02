@@ -30,17 +30,15 @@
             android:id="@+id/btnNewPost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="32dp"
             android:clickable="true"
-            android:contentDescription="@string/texto_post"
-            android:focusable="true"
             android:src="@android:drawable/ic_menu_edit"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.95"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.95" />
+            android:focusable="true" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </FrameLayout>
 

@@ -63,9 +63,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        User user = this.getIntent().getParcelableExtra(Login.USER_EMAIL);
-        TextView email =  (TextView)findViewById(R.id.idEmail);
-        email.setText(user.getEmail());
+//        User user = this.getIntent().getParcelableExtra(Login.USER_EMAIL);
+//        TextView email =  (TextView)findViewById(R.id.idEmail);
+//        email.setText(user.getEmail());
 
 
 

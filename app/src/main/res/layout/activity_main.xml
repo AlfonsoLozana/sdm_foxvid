@@ -8,6 +8,7 @@
 
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -25,8 +26,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
+                android:text="@string/username"
                 android:layout_weight="1"
-                android:text="TextView"
                 android:textColor="#000" />
 
             <Button
@@ -36,10 +37,11 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="24dp"
                 android:layout_weight="0.1"
-                android:text="Crear sesión" />
+                android:text="@string/cerrar_sesion" />
         </LinearLayout>
 
         <include layout="@layout/content_scrolling_buttons" />
+
 
     </LinearLayout>
 
