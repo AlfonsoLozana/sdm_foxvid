@@ -18,7 +18,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
+
+import com.uniovi.foxvid.vista.fragment.NewsFragment;
 import com.uniovi.foxvid.vista.fragment.PostFragment;
+import com.uniovi.foxvid.vista.fragment.StatisticsFragment;
 
 
 import java.util.List;
@@ -86,6 +89,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void loadNewsView(){
+        NewsFragment info = new NewsFragment();
+        Bundle args = new Bundle();
+        info.setArguments(args);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, info).commit();
+    }
+
+    private void loadStatistics(){
+        StatisticsFragment info = new StatisticsFragment();
+        Bundle args = new Bundle();
+        info.setArguments(args);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, info).commit();
+    }
 
     protected void logOut(){
         FirebaseAuth.getInstance().signOut();
@@ -109,10 +125,12 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.nav_post:
                                 loadPostView();
                         return true;
-                    case R.id.nav_new_post:
-                        loadNewPostView();
+                    case R.id.nav_statistics:
+                        loadStatistics();
                         return true;
-
+                    case R.id.nav_news:
+                        loadNewsView();
+                        return true;
 
             }
             return false;
