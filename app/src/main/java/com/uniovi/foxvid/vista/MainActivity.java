@@ -3,19 +3,28 @@ package com.uniovi.foxvid.vista;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.GridLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import com.google.firebase.auth.FirebaseAuth;
 
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 
+
+import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
@@ -31,24 +40,39 @@ public class MainActivity extends AppCompatActivity {
 
     private Button btLogOut;
 
-
-
-
     private  List<Post> listPost;
+    private Toolbar toolbar;
+    private ImageButton btProfile;
+    private FirebaseAuth mAuth;
 
+    private User user;
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
+        user = new User(mAuth.getCurrentUser());
 
-        //Gestion de la botonera
+       //Gestion de la botonera
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        //Le añado un listener
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        drawerLayout = (DrawerLayout)findViewById(R.id.idDrawerLayout);
+
+        btProfile = (ImageButton) findViewById(R.id.btProfile);
+        Picasso.get().load(user.getPhoto()).into(btProfile);
+      btProfile.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        drawerLayout.openDrawer(GravityCompat.START);
+                    }
+                }
+        );
 
         loadPostView();
 
@@ -82,11 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-   @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toll_bar_menu, menu);
-        return true;
-    }
+
 
 
     private void loadPostView(){
@@ -95,14 +115,6 @@ public class MainActivity extends AppCompatActivity {
         Bundle args = new Bundle();
         info.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, info).commit();
-
-    }
-    private void loadNewPostView(){
-//        //Creamos el framento de información
-//        NewPostFragment info = new NewPostFragment();
-//        Bundle args = new Bundle();
-//        info.setArguments(args);
-//        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, info).commit();
 
     }
 
@@ -130,7 +142,25 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        //getMenuInflater().inflate(R.menu.new_post_menu, menu);
+       // getMenuInflater().inflate(R.menu.toll_bar_menu, menu);
+        return true;
+    }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        switch (menuItem.getItemId()){
+            /*case R.id.home:
+                this.finish();
+                return true;*/
+            default:
+                return false;
+        }
+    }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
