@@ -40,7 +40,7 @@ public class NewsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         View root =  inflater.inflate(R.layout.activity_new_post, container, false);
-        btPost = (Button)root.findViewById(R.id.idBtPost);
+        //btPost = (Button)root.findViewById(R.id.idBtPost);
         txtPost = (TextView)root.findViewById(R.id.txtNewPost);
         coordinate = new Coordinate(0.0,0.0);
         updateLocate();

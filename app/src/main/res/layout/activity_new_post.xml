@@ -1,30 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp"
     tools:context=".vista.NewPostActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/idBtPost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:text="Publicar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:text="@string/btn_publish_post"
+            tools:layout_editor_absoluteX="26dp"
+            tools:layout_editor_absoluteY="26dp" />
 
         <EditText
-            android:id="@+id/editTextTextMultiLine2"
-            android:layout_width="417dp"
-            android:layout_height="320dp"
+            android:id="@+id/txtNewPost"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autofillHints="@string/new_post_hint"
             android:ems="10"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:gravity="start|top"
             android:hint="@string/new_post_hint"
             android:inputType="textMultiLine"
@@ -33,7 +38,11 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.184" />
+            app:layout_constraintVertical_bias="0.184">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</FrameLayout>
+            <requestFocus />
+        </EditText>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

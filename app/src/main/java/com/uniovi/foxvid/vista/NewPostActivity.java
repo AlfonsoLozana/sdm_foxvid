@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -43,6 +44,8 @@ public class NewPostActivity extends AppCompatActivity {
         txtPost = (TextView)findViewById(R.id.txtNewPost);
         coordinate = new Coordinate(0.0,0.0);
         updateLocate();
+
+
 
         btPost.setOnClickListener(new View.OnClickListener() {
             @Override
