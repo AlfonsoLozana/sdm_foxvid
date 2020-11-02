@@ -21,7 +21,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:id="@+id/editTextTextMultiLine2"
+            android:id="@+id/txtNewPost"
             android:layout_width="417dp"
             android:layout_height="320dp"
             android:ems="10"

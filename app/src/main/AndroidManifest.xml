@@ -8,7 +8,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".vista.MainActivity"></activity>
+        <activity android:name=".vista.MainActivity"
+            android:theme="@style/Theme.AppCompat"></activity>
         <activity android:name=".vista.Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
