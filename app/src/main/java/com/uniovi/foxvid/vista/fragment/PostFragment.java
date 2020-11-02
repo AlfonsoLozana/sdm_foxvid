@@ -1,6 +1,7 @@
 package com.uniovi.foxvid.vista.fragment;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
@@ -30,11 +32,10 @@ import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Coordinate;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
-import com.uniovi.foxvid.vista.MainActivity;
+import com.uniovi.foxvid.vista.NewPostActivity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 
 public class PostFragment extends Fragment {
@@ -47,6 +48,7 @@ public class PostFragment extends Fragment {
 
     RecyclerView listPostView;
     View root;
+    FloatingActionButton btnNewPost;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -73,6 +75,17 @@ public class PostFragment extends Fragment {
 
         loadPost();
 
+
+        //Floating button -> new post
+        btnNewPost = root.findViewById(R.id.btnNewPost);
+
+        btnNewPost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadNewPost();
+            }
+        });
+
         return root;
     }
 
@@ -82,6 +95,11 @@ public class PostFragment extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         listPostView.setLayoutManager(layoutManager);
         updateValues();
+    }
+
+    protected void loadNewPost(){
+        Intent newPostIntent = new Intent(getActivity(), NewPostActivity.class);
+        startActivity(newPostIntent);
     }
 
     private void updateValues(){

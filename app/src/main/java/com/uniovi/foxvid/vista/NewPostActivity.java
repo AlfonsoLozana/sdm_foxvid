@@ -1,4 +1,4 @@
-package com.uniovi.foxvid.vista.fragment;
+package com.uniovi.foxvid.vista;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -6,13 +6,10 @@ import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -30,20 +27,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class NewPostFragment extends Fragment {
+public class NewPostActivity extends AppCompatActivity {
 
     private Button btPost;
     private TextView txtPost;
     private Coordinate coordinate;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_new_post);
 
-        View root =  inflater.inflate(R.layout.fragment_new_post, container, false);
-        btPost = (Button)root.findViewById(R.id.idBtPost);
-        txtPost = (TextView)root.findViewById(R.id.idTxtPost);
+//        View root =  inflater.inflate(R.layout.fragment_new_post, container, false);
+        btPost = (Button)findViewById(R.id.idBtPost);
+        txtPost = (TextView)findViewById(R.id.txtNewPost);
         coordinate = new Coordinate(0.0,0.0);
         updateLocate();
 
@@ -55,7 +52,7 @@ public class NewPostFragment extends Fragment {
             }
         });
 
-        return root;
+//        return root;
     }
 
        private void post(){
@@ -90,15 +87,15 @@ public class NewPostFragment extends Fragment {
     }
 
     private void updateLocate() {
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        if (ActivityCompat.checkSelfPermission(getContext(),
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getContext(),
+                ActivityCompat.checkSelfPermission(getApplicationContext(),
                         Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
                         // Got last known location. In some rare situations this can be null.
