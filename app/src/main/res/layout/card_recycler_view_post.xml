@@ -17,7 +17,7 @@
         android:padding="16dp">
 
         <ImageView
-            android:id="@+id/idImageR"
+            android:id="@+id/idImagePost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@mipmap/ic_launcher"

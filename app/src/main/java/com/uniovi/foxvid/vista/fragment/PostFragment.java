@@ -57,12 +57,6 @@ public class PostFragment extends Fragment {
         updateLocate();
         root =  inflater.inflate(R.layout.fragment_post, container, false);
 
-        if(listPost == null){
-            System.out.println("adñlfjañdsoihasd -adfasfajsdfñoasdf");
-        }else {
-            System.out.println("bien -adfasfajsdfñoasdf");
-        }
-
         if(listPost == null) listPost= new ArrayList<Post>();
         coordinate = new Coordinate(0.0,0.0);
         listPostView = (RecyclerView) root.findViewById(R.id.idRvPost);
