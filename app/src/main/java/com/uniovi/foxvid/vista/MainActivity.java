@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -106,10 +107,16 @@ public class MainActivity extends AppCompatActivity {
         customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         customDialog.setCancelable(true);
         customDialog.setContentView(R.layout.fragment_log_out);
+        customDialog.getWindow().setLayout(1050,600);
 
         TextView titulo = (TextView) customDialog.findViewById(R.id.txtUserDialog);
-        if(user!=null)
+        ImageView imagenUser = (ImageView) customDialog.findViewById(R.id.idImgUserDialog);
+
+        if(user!=null){
+            Picasso.get().load(user.getPhoto()).into(imagenUser);
             titulo.setText(user.getName());
+        }
+
         else
             titulo.setText("Usuario");
 
@@ -121,6 +128,13 @@ public class MainActivity extends AppCompatActivity {
             {
                 logOut();
 
+            }
+        });
+
+        ((Button) customDialog.findViewById(R.id.cancelar)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                customDialog.cancel();
             }
         });
 
