@@ -27,6 +27,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.squareup.picasso.Picasso;
 import com.uniovi.foxvid.R;
+import com.uniovi.foxvid.SettingsActivity;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
 
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Post> listPost;
     private Toolbar toolbar;
     private ImageButton btProfile;
+    private ImageButton btSettings;
     private FirebaseAuth mAuth;
 
     private User user;
@@ -73,6 +75,17 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        btSettings = (ImageButton) findViewById(R.id.btSettings);
+        btSettings.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
+
+                        startActivity(intentSettings);
+                    }
+                }
+        );
 
 
 
@@ -101,6 +114,36 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        //getMenuInflater().inflate(R.menu.new_post_menu, menu);
+        // getMenuInflater().inflate(R.menu.toll_bar_menu, menu);
+        getMenuInflater().inflate(R.menu.bar_menu, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+       /* switch (menuItem.getItemId()) {
+            case R.id.home:
+                this.finish();
+                return true;
+            default:
+                return false;
+        }*/
+
+        int id = item.getItemId();
+
+        if(id==R.id.settings){
+            Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intentSettings);
+
+        }
+        return super.onOptionsItemSelected(item);
+
+    }
 
     private void openPopUpWindow(){
         customDialog = new Dialog(this);
@@ -175,25 +218,7 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        //getMenuInflater().inflate(R.menu.new_post_menu, menu);
-        // getMenuInflater().inflate(R.menu.toll_bar_menu, menu);
-        return true;
-    }
 
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
-            /*case R.id.home:
-                this.finish();
-                return true;*/
-            default:
-                return false;
-        }
-    }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
