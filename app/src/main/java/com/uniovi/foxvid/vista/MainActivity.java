@@ -40,6 +40,7 @@ import com.uniovi.foxvid.modelo.User;
 import com.uniovi.foxvid.vista.fragment.NewsFragment;
 import com.uniovi.foxvid.vista.fragment.PostFragment;
 import com.uniovi.foxvid.vista.fragment.StatisticsFragment;
+import com.uniovi.foxvid.vista.igu.CircleTransform;
 
 
 import java.util.List;
@@ -76,7 +77,11 @@ public class MainActivity extends AppCompatActivity {
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         btProfile = (ImageButton) findViewById(R.id.btProfile);
-        Picasso.get().load(user.getPhoto()).into(btProfile);
+
+
+
+        Picasso.get().load(user.getPhoto()).fit().transform(new CircleTransform()).into(btProfile);
+
         btProfile.setOnClickListener(
                 new View.OnClickListener() {
                     @Override

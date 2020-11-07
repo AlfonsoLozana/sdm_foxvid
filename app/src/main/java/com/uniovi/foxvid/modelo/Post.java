@@ -26,13 +26,35 @@ public class Post implements Parcelable {
     public Post() {
     }
 
-    public Post(String title, String text, User user, Timestamp  date, Coordinate localization) {
+    public Post(String title, String text, User user, Timestamp  date , Coordinate localization) {
         this.title = title;
         this.text = text;
         this.user = user;
         this.date = date;
         this.localization = localization;
+
     }
+
+
+    protected Post(Parcel in) {
+        title = in.readString();
+        text = in.readString();
+        user = in.readParcelable(User.class.getClassLoader());
+        date = in.readParcelable(Timestamp.class.getClassLoader());
+        localization = in.readParcelable(Coordinate.class.getClassLoader());
+    }
+
+    public static final Creator<Post> CREATOR = new Creator<Post>() {
+        @Override
+        public Post createFromParcel(Parcel in) {
+            return new Post(in);
+        }
+
+        @Override
+        public Post[] newArray(int size) {
+            return new Post[size];
+        }
+    };
 
     public String getTitle() {
         return title;
