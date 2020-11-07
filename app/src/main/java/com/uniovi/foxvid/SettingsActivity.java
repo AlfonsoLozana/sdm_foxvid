@@ -11,6 +11,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SeekBarPreference;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -32,7 +33,12 @@ public class SettingsActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.idAppBarSettings);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
     }
+
+
+
+
 
     @Override
     protected void onPause() {

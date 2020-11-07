@@ -60,19 +60,15 @@ public class Coordinate implements Parcelable {
     }
 
 
-    public boolean checkDistancia(Double lat1, Double lon1) {
+    public boolean checkDistancia(Double lat1, Double lon1, int distancia) {
         Location locationValue = new Location("location value.");
         locationValue.setLatitude(getLat());
         locationValue.setLongitude(getLon());
         Location locationValue1 = new Location("location value.");
         locationValue1.setLatitude(lat1);
         locationValue1.setLongitude(lon1);
-        System.out.println("---------------------------------");
-        System.out.println(locationValue1.distanceTo(locationValue));
-        System.out.println(locationValue1);
-        System.out.println(locationValue);
-        //return  locationValue1.distanceTo(locationValue) < DISTANCE ;
-        return true;
+        return  locationValue1.distanceTo(locationValue) < distancia * 1000 ;
+        //return true;
     }
 
     @Override

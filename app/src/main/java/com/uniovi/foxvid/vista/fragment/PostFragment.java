@@ -2,6 +2,7 @@ package com.uniovi.foxvid.vista.fragment;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,6 +48,7 @@ public class PostFragment extends Fragment {
 
     private List<Post> listPost;
     private Coordinate coordinate;
+    public int distancia;
 
     RecyclerView listPostView;
     View root;
@@ -68,6 +71,11 @@ public class PostFragment extends Fragment {
 
         }
 
+        SharedPreferences sharedPreferencesMainRecycler =
+                PreferenceManager.getDefaultSharedPreferences(getContext() /* Activity context */);
+        distancia =  sharedPreferencesMainRecycler.getInt("Key_Seek_KM", 0);
+        System.out.println("------------------------- " + distancia);
+
         loadPost();
 
 
@@ -84,6 +92,15 @@ public class PostFragment extends Fragment {
         return root;
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferencesMainRecycler =
+                PreferenceManager.getDefaultSharedPreferences(getContext() /* Activity context */);
+        distancia =  sharedPreferencesMainRecycler.getInt("Key_Seek_KM", 0);
+        System.out.println("------------------------- " + distancia);
+    }
 
     protected void loadPost(){
         listPostView.setHasFixedSize(true);
@@ -117,7 +134,7 @@ public class PostFragment extends Fragment {
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
-                                    if(coordinate.checkDistancia(new Double(dc.getDocument().get("lat").toString()),new Double(dc.getDocument().get("lon").toString())))
+                                    if(coordinate.checkDistancia(new Double(dc.getDocument().get("lat").toString()),new Double(dc.getDocument().get("lon").toString()),distancia))
                                         listPost.add(0,new Post(null,
                                                 dc.getDocument().get("post").toString(),
                                                 //public User(String uid, String name, String email, Uri photo)
