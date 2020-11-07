@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.Timestamp;
+import com.squareup.picasso.Picasso;
 import com.uniovi.foxvid.modelo.Post;
 
 import java.util.Date;
@@ -35,8 +36,9 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
         @NonNull
         @Override
         public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.linear_recycler_view_post,parent,false);
+            //View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.linear_recycler_view_post,parent,false);
             //View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.linea_recycler_view_pelicula, parent, false);
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_recycler_view_post,parent,false);
             return new PostViewHolder(itemView);
         }
 
@@ -61,6 +63,7 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
             private TextView postTxt;
             private TextView fecha;
             private TextView user;
+            private ImageView userImage;
 
             public PostViewHolder(View itemView) {
                 super(itemView);
@@ -68,6 +71,8 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
                 postTxt = (TextView)itemView.findViewById(R.id.txtPost);
                 fecha = (TextView)itemView.findViewById(R.id.txtDatePost);
                 user = (TextView)itemView.findViewById(R.id.txtUserPublisher);
+                userImage = (ImageView)itemView.findViewById(R.id.idImagePost);
+
 
 
             }
@@ -75,11 +80,10 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
             // asignar valores a los componentes
             public void bindUser(final Post post, final OnItemClickListener listener) {
                 postTxt.setText(post.getText());
-                //fecha.setText(pelicula.getFecha());
                 fecha.setText(getTime(post.getDate()));
                 user.setText(post.getUser().getEmail());
-                // cargar imagen
-                //Picasso.get().load(pelicula.getUrlCaratula()).into(imagen);
+                //cargar imagen
+                //Picasso.get().load(post.get).into(userImage);
                 //Uri myUri = Uri.parse(pelicula.getUrlCaratula());
                 //imagen.setImageURI(myUri);
 
@@ -88,7 +92,10 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
             private String getTime(Timestamp t){
                 long diferencia=new Date().getTime()- t.toDate().getTime();
                 long segundos = TimeUnit.MILLISECONDS.toSeconds(diferencia);
-                if(segundos <= 60){
+                if(segundos < 0){
+                    return 0 + " s";
+                }
+                else if(segundos <= 60){
                     return segundos + " s";
                 }else if(segundos <= 3600)
                     return TimeUnit.MILLISECONDS.toMinutes(diferencia) + " min";

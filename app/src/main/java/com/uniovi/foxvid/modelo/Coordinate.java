@@ -1,18 +1,10 @@
 package com.uniovi.foxvid.modelo;
 
-import android.content.Context;
-import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
-
-import com.uniovi.foxvid.MainActivity;
-
-import java.util.Locale;
-
-public class Coordinate {
+public class Coordinate implements Parcelable {
 
     public static float  DISTANCE = 4000;
     private Double lat;
@@ -25,6 +17,30 @@ public class Coordinate {
     }
 
 
+    protected Coordinate(Parcel in) {
+        if (in.readByte() == 0) {
+            lat = null;
+        } else {
+            lat = in.readDouble();
+        }
+        if (in.readByte() == 0) {
+            lon = null;
+        } else {
+            lon = in.readDouble();
+        }
+    }
+
+    public static final Creator<Coordinate> CREATOR = new Creator<Coordinate>() {
+        @Override
+        public Coordinate createFromParcel(Parcel in) {
+            return new Coordinate(in);
+        }
+
+        @Override
+        public Coordinate[] newArray(int size) {
+            return new Coordinate[size];
+        }
+    };
 
     public Double getLat() {
         return lat;
@@ -55,7 +71,19 @@ public class Coordinate {
         System.out.println(locationValue1.distanceTo(locationValue));
         System.out.println(locationValue1);
         System.out.println(locationValue);
-        return  locationValue1.distanceTo(locationValue) < DISTANCE ;
+        //return  locationValue1.distanceTo(locationValue) < DISTANCE ;
+        return true;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeDouble(lon);
+        parcel.writeDouble(lat);
     }
 }
 
