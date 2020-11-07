@@ -32,6 +32,7 @@ import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Coordinate;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
+import com.uniovi.foxvid.vista.MainActivity;
 import com.uniovi.foxvid.vista.NewPostActivity;
 
 import java.util.ArrayList;

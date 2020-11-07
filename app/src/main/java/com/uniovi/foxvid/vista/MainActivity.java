@@ -1,13 +1,18 @@
-
 package com.uniovi.foxvid.vista;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -18,6 +23,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -40,6 +46,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    //get access to location permission
+    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
+    boolean hasAccessToLocation=false;
+
     private Button btLogOut;
 
     private List<Post> listPost;
@@ -50,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     private User user;
     Dialog customDialog = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +100,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        loadPostView();
+        //Metodo que carga los posts si se dan permisos de ubicacion
+        getLocation();
+
+
+
 
        /* btLogOut = (Button)findViewById(R.id.idLogOut);
 
@@ -112,6 +127,46 @@ public class MainActivity extends AppCompatActivity {
         */
 
 
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_ASK_PERMISSIONS:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    hasAccessToLocation=true;
+                    getLocation();
+                } else {
+                    // Permission Denied
+                    Toast.makeText(this, "your message", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    //Get location
+    public void getLocation() {
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{
+                                Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_CODE_ASK_PERMISSIONS);
+            }
+        }
+        else {
+            loadPostView();
+            /*Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (myLocation == null) {
+                myLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+
+            }*/
+        }
     }
 
     @Override
@@ -228,7 +283,8 @@ public class MainActivity extends AppCompatActivity {
 
             switch (item.getItemId()) {
                 case R.id.nav_post:
-                    loadPostView();
+                    if(hasAccessToLocation)
+                        loadPostView();
                     return true;
                 case R.id.nav_statistics:
                     loadStatistics();
