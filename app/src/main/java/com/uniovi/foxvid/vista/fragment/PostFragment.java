@@ -120,7 +120,7 @@ public class PostFragment extends Fragment {
                                         listPost.add(0,new Post(null,
                                                 dc.getDocument().get("post").toString(),
                                                 //public User(String uid, String name, String email, Uri photo)
-                                                new User(dc.getDocument().get("userUid").toString(),null, dc.getDocument().get("userEmail").toString() ,null),
+                                                new User(dc.getDocument().get("userUid").toString(),null, dc.getDocument().get("userEmail").toString(), dc.getDocument().get("userImage").toString()),
                                                 (Timestamp)dc.getDocument().get("date"),
                                                 new Coordinate(new Double(dc.getDocument().get("lat").toString()),new Double(dc.getDocument().get("lat").toString()))
                                         ));

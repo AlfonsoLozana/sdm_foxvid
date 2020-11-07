@@ -12,12 +12,12 @@ public class User implements Parcelable {
     private String uid;
     private String name;
     private String email;
-    private Uri photo;
+    private String photo;
 
     public User() {
     }
 
-    public User(String uid, String name, String email, Uri photo) {
+    public User(String uid, String name, String email, String photo) {
         this.uid = uid;
         this.name = name;
         this.email = email;
@@ -29,7 +29,7 @@ public class User implements Parcelable {
             this.uid = currentUser.getUid();
             this.name = currentUser.getDisplayName();
             this.email = currentUser.getEmail();
-            this.photo = currentUser.getPhotoUrl();
+            this.photo = currentUser.getPhotoUrl().toString(); //FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString()
         }
     }
 
@@ -76,11 +76,11 @@ public class User implements Parcelable {
         this.email = email;
     }
 
-    public Uri getPhoto() {
+    public String getPhoto() {
         return photo;
     }
 
-    public void setPhoto(Uri photo) {
+    public void setPhoto(String photo) {
         this.photo = photo;
     }
 
@@ -95,7 +95,7 @@ public class User implements Parcelable {
         parcel.writeString(uid);
         parcel.writeString(name);
         parcel.writeString(email);
-        parcel.writeParcelable(photo, i);
+        parcel.writeString(photo);
     }
 
     public void setUser(FirebaseUser currentUser) {

@@ -107,6 +107,7 @@ public class NewPostActivity extends AppCompatActivity {
         posts.put("post", txtPost.getText().toString());
         posts.put("userUid", FirebaseAuth.getInstance().getCurrentUser().getUid());
         posts.put("userEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        posts.put("userImage", FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString());
         posts.put("date", Timestamp.now());
         posts.put("lat", coordinate.getLat());
         posts.put("lon", coordinate.getLon());

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.Timestamp;
 import com.squareup.picasso.Picasso;
 import com.uniovi.foxvid.modelo.Post;
+import com.uniovi.foxvid.vista.igu.CircleTransform;
 
 import java.util.Date;
 import java.util.List;
@@ -82,10 +83,8 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
                 postTxt.setText(post.getText());
                 fecha.setText(getTime(post.getDate()));
                 user.setText(post.getUser().getEmail());
-                //cargar imagen
-                //Picasso.get().load(post.get).into(userImage);
-                //Uri myUri = Uri.parse(pelicula.getUrlCaratula());
-                //imagen.setImageURI(myUri);
+                Picasso.get().load(post.getUser().getPhoto()).transform(new CircleTransform()).into(userImage);
+
 
             }
 
