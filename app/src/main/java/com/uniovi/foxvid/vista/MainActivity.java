@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
         btProfile = (ImageButton) findViewById(R.id.btProfile);
 
 
-
         Picasso.get().load(user.getPhoto()).fit().transform(new CircleTransform()).into(btProfile);
 
         btProfile.setOnClickListener(
@@ -144,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                     getLocation();
                 } else {
                     // Permission Denied
-                    Toast.makeText(this, "your message", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, R.string.location_permission_not_given_message, Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;
