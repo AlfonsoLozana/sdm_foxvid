@@ -37,7 +37,7 @@ public class User implements Parcelable {
         uid = in.readString();
         name = in.readString();
         email = in.readString();
-        photo = in.readParcelable(Uri.class.getClassLoader());
+        photo = in.readString();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {

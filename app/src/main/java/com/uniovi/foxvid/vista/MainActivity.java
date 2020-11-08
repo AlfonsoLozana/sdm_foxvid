@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
         ImageView imagenUser = (ImageView) customDialog.findViewById(R.id.idImgUserDialog);
 
         if(user!=null){
-            Picasso.get().load(user.getPhoto()).into(imagenUser);
+            Picasso.get().load(user.getPhoto()).fit().into(imagenUser);
             titulo.setText(user.getName());
         }
 

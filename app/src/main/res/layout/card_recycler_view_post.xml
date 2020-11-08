@@ -19,7 +19,7 @@
         <ImageView
             android:id="@+id/idImagePost"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:srcCompat="@mipmap/ic_launcher"
             android:contentDescription="@string/imagen_post" />
 
@@ -64,8 +64,8 @@
 
 
             <LinearLayout
-                android:layout_width="100dp"
-                android:layout_height="20dp"
+                android:layout_width="200dp"
+                android:layout_height="25dp"
                 android:layout_gravity="start"
                 android:paddingStart="10dp"
                 android:paddingEnd="0dp"
@@ -75,10 +75,10 @@
 
                 <ImageButton
                     android:id="@+id/btLike"
-                    android:layout_width="16dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@android:drawable/arrow_up_float"
+                    android:layout_width="20dp"
+                    android:layout_height="18dp"
+
+                    android:background="@drawable/ic_baseline_thumb_up_24"
                     android:backgroundTint="#008f39"
                     android:textAlignment="viewStart"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
@@ -88,20 +88,19 @@
                     android:id="@+id/txtLike"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:text="2"
                     android:textAlignment="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    android:textSize="12dp"
+                    android:textSize="14dp"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"/>
 
                 <ImageButton
                     android:id="@+id/btDislike"
                     android:layout_width="20dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@android:drawable/arrow_down_float"
+                    android:layout_height="18dp"
+
+                    android:background="@drawable/ic_baseline_thumb_down_24"
                     android:backgroundTint="#FF0000"
                     android:textAlignment="viewStart"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
@@ -111,11 +110,10 @@
                     android:id="@+id/txtDislike"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:text="2020"
                     android:textAlignment="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    android:textSize="12dp"
+                    android:textSize="14dp"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
                     />
