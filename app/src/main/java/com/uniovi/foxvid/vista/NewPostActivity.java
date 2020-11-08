@@ -111,6 +111,8 @@ public class NewPostActivity extends AppCompatActivity {
         posts.put("date", Timestamp.now());
         posts.put("lat", coordinate.getLat());
         posts.put("lon", coordinate.getLon());
+        posts.put("nLikes", 0);
+        posts.put("nDislikes", 0);
         txtPost.setText("");
 
 

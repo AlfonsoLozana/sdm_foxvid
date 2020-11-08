@@ -8,12 +8,13 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label= ""
+        android:label= "Foxvid"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
         <activity android:name=".vista.MainActivity" />
         <activity android:name=".SettingsActivity"
             android:parentActivityName=".vista.MainActivity"
+            android:label= "Ajustes"
             android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".vista.Login">
             <intent-filter>
@@ -24,6 +25,7 @@
         </activity>
         <activity
             android:name=".vista.NewPostActivity"
+            android:label= ""
             android:parentActivityName=".vista.MainActivity"
             android:windowSoftInputMode="adjustResize" />
 

@@ -17,28 +17,33 @@ import com.uniovi.foxvid.ListaPostAdapter;
 
 public class Post implements Parcelable {
 
-    private String title;
+    private String uuid;
     private String text;
     private User user;
     private Timestamp date;
     private Coordinate localization;
+    private int nLikes;
+    private int nDislikes;
 
     public Post() {
     }
 
-    public Post(String title, String text, User user, Timestamp  date , Coordinate localization) {
-        this.title = title;
+    public Post(String uuid, String text, User user, Timestamp  date , Coordinate localization, int nLikes, int nDislikes) {
+        this.uuid = uuid;
         this.text = text;
         this.user = user;
         this.date = date;
         this.localization = localization;
-
+        this.nDislikes = nDislikes;
+        this.nLikes = nLikes;
     }
 
 
     protected Post(Parcel in) {
-        title = in.readString();
+        uuid = in.readString();
         text = in.readString();
+        nLikes = in.readInt();
+        nDislikes = in.readInt();
         user = in.readParcelable(User.class.getClassLoader());
         date = in.readParcelable(Timestamp.class.getClassLoader());
         localization = in.readParcelable(Coordinate.class.getClassLoader());
@@ -56,13 +61,7 @@ public class Post implements Parcelable {
         }
     };
 
-    public String getTitle() {
-        return title;
-    }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
 
     public String getText() {
         return text;
@@ -88,6 +87,26 @@ public class Post implements Parcelable {
         this.date = date;
     }
 
+    public String getUuid() {
+        return uuid;
+    }
+
+    public int getnDislikes() {
+        return nDislikes;
+    }
+
+    public int getnLikes() {
+        return nLikes;
+    }
+
+    public void setnDislikes(int nDislikes) {
+        this.nDislikes = nDislikes;
+    }
+
+    public void setnLikes(int nLikes) {
+        this.nLikes = nLikes;
+    }
+
     public Coordinate getLocalization() {
         return localization;
     }
@@ -103,8 +122,10 @@ public class Post implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(title);
+        parcel.writeString(uuid);
         parcel.writeString(text);
+        parcel.writeInt(nLikes);
+        parcel.writeInt(nDislikes);
         parcel.writeParcelable(user,i);
         parcel.writeParcelable(date,i);
         parcel.writeParcelable(localization,i);

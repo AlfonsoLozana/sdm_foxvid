@@ -15,14 +15,6 @@
         android:minHeight="?attr/actionBarSize"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:textColor="#fff"
-            android:text="Ajustes"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
     </androidx.appcompat.widget.Toolbar>
 
 

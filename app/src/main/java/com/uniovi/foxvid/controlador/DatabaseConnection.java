@@ -48,7 +48,7 @@ public class DatabaseConnection {
 
     }
 
-    public void addPostDB(Post post) {
+    /*public void addPostDB(Post post) {
         Map<String, Object> posts = new HashMap<>();
         posts.put("title", post.getTitle());
         posts.put("text", post.getText());
@@ -71,6 +71,6 @@ public class DatabaseConnection {
                         //Log.w(TAG, "Error writing document", e);
                     }
                 });
-    }
+    }*/
 
 }

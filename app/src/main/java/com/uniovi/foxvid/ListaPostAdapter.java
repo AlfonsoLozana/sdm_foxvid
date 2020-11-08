@@ -4,13 +4,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.vista.igu.CircleTransform;
@@ -63,8 +68,13 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
 
             private TextView postTxt;
             private TextView fecha;
+            private TextView uuid;
             private TextView user;
+            private TextView nLike;
+            private TextView nDislike;
             private ImageView userImage;
+            private ImageButton btLikes;
+            private ImageButton btDislikes;
 
             public PostViewHolder(View itemView) {
                 super(itemView);
@@ -73,9 +83,60 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
                 fecha = (TextView)itemView.findViewById(R.id.txtDatePost);
                 user = (TextView)itemView.findViewById(R.id.txtUserPublisher);
                 userImage = (ImageView)itemView.findViewById(R.id.idImagePost);
+                uuid = (TextView)itemView.findViewById(R.id.idUuidLikes);
+                btLikes = (ImageButton)itemView.findViewById(R.id.btLike);
+                btDislikes = (ImageButton)itemView.findViewById(R.id.btDislike);
+                nLike = (TextView)itemView.findViewById(R.id.txtLike);
+                nDislike = (TextView)itemView.findViewById(R.id.txtDislike);
 
 
+                btLikes.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        like(uuid.getText().toString(),Integer.parseInt(nLike.getText().toString()));
+                    }
+                });
 
+                btDislikes.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        disLike(uuid.getText().toString(),Integer.parseInt(nDislike.getText().toString()));
+                    }
+                });
+
+            }
+
+            private void like(String uuid, int like){
+                like ++;
+                updateNumberOfLikes(uuid,"nLikes", like);
+                nLike.setText(like + "");
+
+
+            }
+
+            private void disLike(String uuid, int dislike){
+                dislike ++;
+                updateNumberOfLikes(uuid,"nDislikes", dislike);
+                nDislike.setText(dislike + "");
+            }
+
+            private void updateNumberOfLikes(String uuid, String campo, int value){
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                DocumentReference washingtonRef = db.collection("post").document(uuid);
+                washingtonRef
+                        .update(campo,value)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("Error:" , "Error al actualizar los likes", e);
+                            }
+                        });
             }
 
             // asignar valores a los componentes
@@ -83,6 +144,9 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
                 postTxt.setText(post.getText());
                 fecha.setText(getTime(post.getDate()));
                 user.setText(post.getUser().getEmail());
+                nLike.setText(post.getnLikes() + "");
+                nDislike.setText(post.getnDislikes() + "");
+                uuid.setText(post.getUuid());
                 Picasso.get().load(post.getUser().getPhoto()).transform(new CircleTransform()).into(userImage);
 
 
