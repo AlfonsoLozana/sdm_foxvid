@@ -42,8 +42,7 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
         @NonNull
         @Override
         public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            //View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.linear_recycler_view_post,parent,false);
-            //View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.linea_recycler_view_pelicula, parent, false);
+
             View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_recycler_view_post,parent,false);
             return new PostViewHolder(itemView);
         }
