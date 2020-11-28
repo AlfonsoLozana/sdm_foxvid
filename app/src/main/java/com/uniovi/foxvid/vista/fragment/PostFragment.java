@@ -54,6 +54,7 @@ public class PostFragment extends Fragment {
     private Coordinate coordinate;
     public int distancia;
 
+
     RecyclerView listPostView;
     View root;
     FloatingActionButton btnNewPost;
