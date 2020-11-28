@@ -178,7 +178,7 @@ public class PostFragment extends Fragment {
                             }
                         }
 
-                        adapter = new ListaPostAdapter(listPost, null);
+                        adapter = new ListaPostAdapter(listPost);
                         listPostView.setAdapter(adapter);
 
                         for (int i = 0; i < listPost.size(); i++) {

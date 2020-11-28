@@ -38,16 +38,12 @@ import java.util.concurrent.TimeUnit;
 public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.PostViewHolder> {
 
     //Interfaz para manejar el evento de click
-    public interface OnItemClickListener {
-        void onItemClick(Post post);
-    }
+
 
     private List<Post> posts;
-    private final OnItemClickListener listener;
 
-    public ListaPostAdapter(List<Post> posts, OnItemClickListener listener) {
+    public ListaPostAdapter(List<Post> posts) {
         this.posts = posts;
-        this.listener = listener;
     }
 
     @NonNull
@@ -62,7 +58,7 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
         Post post = posts.get(position);
 
         Log.i("Lista", "Visualiza elemento: " + post);
-        holder.bindUser(post, listener);
+        holder.bindUser(post);
 
     }
 
@@ -130,7 +126,7 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
 
 
             Map<String, Object> data = new HashMap<>();
-            data.put("capital", like);
+            data.put("like", like);
 
 
             postRef.set(data, SetOptions.merge())
@@ -160,19 +156,21 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        final int numberOfLikes = task.getResult().size();
+                        int numberOfLikes = task.getResult().size();
+                        nLike.setText(numberOfLikes+"");
 
-                        queryDisike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    int numberOfDislikes = task.getResult().size();
-                                    setNumberOfLikes(numberOfLikes, numberOfDislikes);
-                                } else {
-                                    //Log.d(TAG, "Error getting documents: ", task.getException());
-                                }
-                            }
-                        });
+                    } else {
+                        //Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                }
+            });
+
+            queryDisike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        int numberOfDislikes = task.getResult().size();
+                        nDislike.setText(numberOfDislikes+"");
 
                     } else {
                         //Log.d(TAG, "Error getting documents: ", task.getException());
@@ -181,13 +179,9 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
             });
         }
 
-        private void setNumberOfLikes(int numberOfLikes, int numberOfDislikes) {
-            nLike.setText(numberOfLikes);
-            nDislike.setText(numberOfDislikes);
-        }
 
         // asignar valores a los componentes
-        public void bindUser(final Post post, final OnItemClickListener listener) {
+        public void bindUser(final Post post) {
             postTxt.setText(post.getText());
             fecha.setText(getTime(post.getDate()));
             user.setText(post.getUser().getEmail());
