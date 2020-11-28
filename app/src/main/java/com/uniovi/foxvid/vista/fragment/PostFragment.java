@@ -164,9 +164,9 @@ public class PostFragment extends Fragment {
                                                 new User(dc.getDocument().get("userUid").toString(), null, dc.getDocument().get("userEmail").toString(), dc.getDocument().get("userImage").toString()),
                                                 (Timestamp) dc.getDocument().get("date"),
                                                 new Coordinate(new Double(dc.getDocument().get("lat").toString()), new Double(dc.getDocument().get("lat").toString())),
-                                                Integer.parseInt(dc.getDocument().get("nLikes").toString()),
-                                                Integer.parseInt(dc.getDocument().get("nDislikes").toString())
-                                        ));
+                                                0,
+                                                0)
+                                        );
 
                                     break;
                                 case MODIFIED:
