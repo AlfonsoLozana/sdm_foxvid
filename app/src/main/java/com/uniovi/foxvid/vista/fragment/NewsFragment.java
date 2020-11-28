@@ -15,9 +15,15 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.uniovi.foxvid.ListaNewsAdapter;
 import com.uniovi.foxvid.R;
+import com.uniovi.foxvid.controlador.db.FeedDatabase;
+import com.uniovi.foxvid.controlador.db.VolleySingleton;
+import com.uniovi.foxvid.controlador.xml.Rss;
+import com.uniovi.foxvid.controlador.xml.XmlRequest;
 import com.uniovi.foxvid.modelo.Coordinate;
 import com.uniovi.foxvid.modelo.News;
 import com.uniovi.foxvid.modelo.Post;
@@ -27,6 +33,8 @@ import java.util.List;
 
 public class NewsFragment extends Fragment {
 
+    private static final String TAG = "Error " ;
+    private static final String URL_FEED = "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada";
     private Button btPost;
     private TextView txtPost;
 
@@ -51,9 +59,40 @@ public class NewsFragment extends Fragment {
         //Cargar ultimas noticias
         loadLastNews();
 
+        prueba();
+
 
 
         return root;
+    }
+
+    public void prueba(){
+        System.out.println("Entra");
+        VolleySingleton.getInstance(getContext()).addToRequestQueue(
+                new XmlRequest<>(
+                        URL_FEED,
+                        Rss.class,
+                        null,
+                        new Response.Listener<Rss>() {
+                            @Override
+                            public void onResponse(Rss response) {
+                                System.out.println("Noticias");
+                                System.out.println(response.getChannel().getItems());
+                                // Caching
+                               // FeedDatabase.getInstance(getContext()).
+                                 //       sincronizarEntradas(response.getChannel().getItems());
+                                // Carga inicial de datos...
+
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.d(TAG, " Volley: " + error.getMessage());
+                            }
+                        }
+                )
+        );
     }
 
 

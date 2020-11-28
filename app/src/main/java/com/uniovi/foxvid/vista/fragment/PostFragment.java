@@ -70,10 +70,7 @@ public class PostFragment extends Fragment {
 
         }
 
-        SharedPreferences sharedPreferencesMainRecycler =
-                PreferenceManager.getDefaultSharedPreferences(getContext() /* Activity context */);
-        distancia =  sharedPreferencesMainRecycler.getInt("Key_Seek_KM", 0);
-        System.out.println("------------------------- " + distancia);
+        actuailizarDistancia();
 
         loadPost();
 
@@ -95,6 +92,13 @@ public class PostFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        actuailizarDistancia();
+    }
+
+    /**
+     * Método pa actuailzar filtro distancia
+     */
+    public void actuailizarDistancia(){
         SharedPreferences sharedPreferencesMainRecycler =
                 PreferenceManager.getDefaultSharedPreferences(getContext() /* Activity context */);
         distancia =  sharedPreferencesMainRecycler.getInt("Key_Seek_KM", 0);
