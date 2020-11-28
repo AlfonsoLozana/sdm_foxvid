@@ -1,6 +1,7 @@
 package com.uniovi.foxvid.vista.fragment;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -26,6 +27,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -45,6 +50,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.squareup.picasso.Picasso;
 import com.uniovi.foxvid.ListaPostAdapter;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Coordinate;
@@ -63,12 +69,16 @@ public class PostFragment extends Fragment {
 
     public static final String POSTS = "posts";
     public static final String MAIN = "main";
+    public static final int MAX_NUMBER_OF_INTENTES = 3;
 
     private List<Post> listPost;
     private Coordinate coordinate;
+    private Coordinate beforeCoordinate;
+    private int numeroDeIntentosCordenados;
     public int distancia;
     private ListaPostAdapter adapter;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private Dialog customDialog;
 
 
     RecyclerView listPostView;
@@ -79,11 +89,15 @@ public class PostFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        updateLocate();
+
+        coordinate = new Coordinate(0.0, 0.0);
+        beforeCoordinate = new Coordinate(0.0, 0.0);
+        numeroDeIntentosCordenados = 0;
+
         root = inflater.inflate(R.layout.fragment_post, container, false);
 
         if (listPost == null) listPost = new ArrayList<Post>();
-        coordinate = new Coordinate(0.0, 0.0);
+
         listPostView = (RecyclerView) root.findViewById(R.id.idRvPost);
 
 
@@ -94,17 +108,10 @@ public class PostFragment extends Fragment {
 
         }
 
-        SharedPreferences sharedPreferencesMainRecycler =
-                PreferenceManager.getDefaultSharedPreferences(getContext() /* Activity context */);
-        distancia = sharedPreferencesMainRecycler.getInt("Key_Seek_KM", 0);
-        System.out.println("------------------------- " + distancia);
-
-        loadPost();
-
+        cargarPost();
 
         //Floating button -> new post
         btnNewPost = root.findViewById(R.id.btnNewPost);
-
         btnNewPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -115,14 +122,26 @@ public class PostFragment extends Fragment {
         return root;
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
-        SharedPreferences sharedPreferencesMainRecycler =
-                PreferenceManager.getDefaultSharedPreferences(getContext() /* Activity context */);
+        numeroDeIntentosCordenados = 0;
+        cargarPost();
+    }
+
+
+
+
+
+    public void cargarPost(){
+        filterUbicacion();
+    }
+
+
+    public void filterUbicacion(){
+        SharedPreferences sharedPreferencesMainRecycler = PreferenceManager.getDefaultSharedPreferences(getContext());
         distancia = sharedPreferencesMainRecycler.getInt("Key_Seek_KM", 0);
-        System.out.println("------------------------- " + distancia);
+        updateLocate();
     }
 
     protected void loadPost() {
@@ -193,9 +212,7 @@ public class PostFragment extends Fragment {
     private void updateLocate() {
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         if (ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getContext(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         fusedLocationClient.getLastLocation()
@@ -206,10 +223,47 @@ public class PostFragment extends Fragment {
                         if (location != null) {
                             coordinate.setLat(location.getLatitude());
                             coordinate.setLon(location.getLongitude());
+                            beforeCoordinate.setLat(location.getLatitude());
+                            beforeCoordinate.setLon(location.getLongitude());
+                            numeroDeIntentosCordenados = 0;
+                            loadPost();
+                        }else{
+                            if(beforeCoordinate.getLon() == 0 && beforeCoordinate.getLat() == 0 &&  numeroDeIntentosCordenados < MAX_NUMBER_OF_INTENTES){
+                                //preguntarPorUbicacion();
+                                numeroDeIntentosCordenados ++;
+                            }else{
+                                coordinate.setLat(beforeCoordinate.getLat());
+                                coordinate.setLon(beforeCoordinate.getLon());
+                                cargarPost();
+
+                            }
+
                         }
                     }
                 });
 
+    }
+
+    private void preguntarPorUbicacion() {
+         customDialog = new Dialog(getContext());
+        customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        customDialog.setCancelable(true);
+        customDialog.setContentView(R.layout.fragment_location);
+        customDialog.getWindow().setLayout(1050,600);
+
+
+
+        ((Button) customDialog.findViewById(R.id.btLocation)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                customDialog.cancel();
+                numeroDeIntentosCordenados = -2;
+                cargarPost();
+
+            }
+        });
+
+        customDialog.show();
     }
 
 

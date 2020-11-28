@@ -4,11 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
+import androidx.preference.SeekBarPreference;
 
 import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -103,34 +108,9 @@ public class MainActivity extends AppCompatActivity {
         );
 
 
-
         //Metodo que carga los posts si se dan permisos de ubicacion
+        hasAccessToLocation = ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED;
         getLocation();
-
-
-
-
-       /* btLogOut = (Button)findViewById(R.id.idLogOut);
-
-
-
-
-        btLogOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                logOut();
-            }
-        });
-
-
-        //User user = this.getIntent().getParcelableExtra(Login.USER_EMAIL);
-
-        User user = new User(FirebaseAuth.getInstance();
-        TextView email =  (TextView)findViewById(R.id.idEmail);
-        email.setText(user.getEmail());
-        */
-
-
     }
 
 
@@ -166,19 +146,12 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             loadPostView();
-            /*Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (myLocation == null) {
-                myLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-
-            }*/
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        //getMenuInflater().inflate(R.menu.new_post_menu, menu);
-        // getMenuInflater().inflate(R.menu.toll_bar_menu, menu);
         getMenuInflater().inflate(R.menu.bar_menu, menu);
         return true;
     }
@@ -186,14 +159,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-       /* switch (menuItem.getItemId()) {
-            case R.id.home:
-                this.finish();
-                return true;
-            default:
-                return false;
-        }*/
-
         int id = item.getItemId();
 
         if(id==R.id.settings){
@@ -250,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
         Bundle args = new Bundle();
         info.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, info).commit();
+        btSettings.setVisibility(View.VISIBLE);
 
     }
 
@@ -258,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
         Bundle args = new Bundle();
         info.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, info).commit();
+        btSettings.setVisibility(View.INVISIBLE);
     }
 
     private void loadStatistics() {
@@ -265,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
         Bundle args = new Bundle();
         info.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, info).commit();
+        btSettings.setVisibility(View.INVISIBLE);
     }
 
     protected void logOut() {

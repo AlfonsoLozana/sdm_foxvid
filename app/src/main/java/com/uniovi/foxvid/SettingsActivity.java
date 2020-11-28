@@ -10,7 +10,9 @@ import android.view.MenuItem;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
 import androidx.preference.SeekBarPreference;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -33,10 +35,7 @@ public class SettingsActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.idAppBarSettings);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
     }
-
-
 
 
 

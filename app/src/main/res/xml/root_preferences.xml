@@ -4,10 +4,12 @@
     <PreferenceCategory app:title="Preferencias">
 
         <SeekBarPreference
+
             app:defaultValue="10"
             app:min="10"
             app:key="Key_Seek_KM"
-            app:title="Distancia"
+            app:title="Distancia (km)"
+            app:showSeekBarValue="true"
             />
         <!--   <EditTextPreference
                app:key="signature"

@@ -61,13 +61,17 @@ public class Coordinate implements Parcelable {
 
 
     public boolean checkDistancia(Double lat1, Double lon1, int distancia) {
+        System.out.println("lat " + lat1 + " lon1 " + lon1 );
         Location locationValue = new Location("location value.");
         locationValue.setLatitude(getLat());
         locationValue.setLongitude(getLon());
         Location locationValue1 = new Location("location value.");
         locationValue1.setLatitude(lat1);
         locationValue1.setLongitude(lon1);
-        return  locationValue1.distanceTo(locationValue) < distancia * 1000 ;
+        System.out.println("Distancia en metros" + locationValue1.distanceTo(locationValue));
+        System.out.println("-------------------" + (distancia * 1000));
+        System.out.println("-------------------" + (locationValue1.distanceTo(locationValue) < (distancia * 1000)));
+        return  locationValue1.distanceTo(locationValue) < (distancia * 1000) ;
         //return true;
     }
 
