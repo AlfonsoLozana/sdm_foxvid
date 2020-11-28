@@ -15,7 +15,7 @@ public class Item {
     private String descripcion;
 
     @Element(name="link")
-    private String url;
+    private String link;
 
     @Element(name="content")
     @Namespace(reference="http://search.yahoo.com/mrss/", prefix="media")
@@ -26,10 +26,10 @@ public class Item {
     public Item() {
     }
 
-    public Item(String title, String descripcion, String url, Content content) {
+    public Item(String title, String descripcion, String link, Content content) {
         this.title = title;
         this.descripcion = descripcion;
-        this.url = url;
+        this.link = link;
         this.content = content;
     }
 
@@ -42,7 +42,7 @@ public class Item {
     }
 
     public String getLink() {
-        return url;
+        return link;
     }
 
     public Content getContent() {

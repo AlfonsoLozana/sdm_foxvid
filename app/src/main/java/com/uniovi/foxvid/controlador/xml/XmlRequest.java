@@ -11,8 +11,26 @@ import com.android.volley.toolbox.HttpHeaderParser;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 
 public class XmlRequest<T> extends Request<T> {
@@ -56,10 +74,13 @@ public class XmlRequest<T> extends Request<T> {
             // Depurando...
             Log.d(TAG, xml);
 
-            // Enviando la respuesta parseada
-            return Response.success(
+            List<Item> result = parseXML(xml);
+           return Response.success(
                     serializer.read(clazz, xml),
                     HttpHeaderParser.parseCacheHeaders(response));
+
+
+
 
         } catch (UnsupportedEncodingException e) {
             return Response.error(new ParseError(e));
@@ -68,4 +89,40 @@ public class XmlRequest<T> extends Request<T> {
             return Response.error(new ParseError(e));
         }
     }
+
+
+
+
+    private List<Item> parseXML(String xml){
+        NodeList nl = null;
+        List<Item> itemsList = new ArrayList<Item>();
+        try {
+            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(xml)));
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            doc.getDocumentElement().normalize();
+            NodeList nList = doc.getElementsByTagName("item");
+            System.out.println("----------------------------");
+
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+                Node nNode = nList.item(temp);
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) nNode;
+                    String title = eElement.getElementsByTagName("title").item(0).getTextContent();
+                    String URL = eElement.getElementsByTagName("link").item(0).getTextContent();
+                    String content[] = eElement.getElementsByTagName("description").item(0).getChildNodes().item(0).getTextContent().split("src=\"")[1].split("\">");
+                    String img = content[0];
+                    String description = content[1];
+                    itemsList.add(new Item(title,description,URL, new Content(img)));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return itemsList;
+    }
+
 }

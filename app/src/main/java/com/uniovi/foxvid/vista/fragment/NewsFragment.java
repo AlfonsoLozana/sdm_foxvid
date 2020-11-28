@@ -15,26 +15,44 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.uniovi.foxvid.ListaNewsAdapter;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.controlador.db.FeedDatabase;
 import com.uniovi.foxvid.controlador.db.VolleySingleton;
+import com.uniovi.foxvid.controlador.xml.Content;
+import com.uniovi.foxvid.controlador.xml.Item;
 import com.uniovi.foxvid.controlador.xml.Rss;
 import com.uniovi.foxvid.controlador.xml.XmlRequest;
 import com.uniovi.foxvid.modelo.Coordinate;
 import com.uniovi.foxvid.modelo.News;
 import com.uniovi.foxvid.modelo.Post;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class NewsFragment extends Fragment {
 
     private static final String TAG = "Error " ;
-    private static final String URL_FEED = "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada";
+   // private static final String URL_FEED = "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada";
+    //private static final String URL_FEED = "https://e00-elmundo.uecdn.es/elmundo/rss/espana.xml";
+    private static final String URL_FEED = "https://www.abc.es/rss/feeds/abc_SociedadSalud.xml";
     private Button btPost;
     private TextView txtPost;
 
@@ -57,16 +75,75 @@ public class NewsFragment extends Fragment {
         newsListView.setLayoutManager(layoutManager);
 
         //Cargar ultimas noticias
-        loadLastNews();
+        aa();
 
-        prueba();
+
+        //prueba();
+
 
 
 
         return root;
     }
 
-    public void prueba(){
+    public void aa(){
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        String url ="http://www.google.com";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, URL_FEED,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        parseXML(response);
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //textView.setText("That didn't work!");
+            }
+        });
+
+        queue.add(stringRequest);
+
+    }
+
+    private void parseXML(String xml){
+        NodeList nl = null;
+        try {
+            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(xml)));
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            doc.getDocumentElement().normalize();
+            NodeList nList = doc.getElementsByTagName("item");
+            System.out.println("----------------------------");
+
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+                Node nNode = nList.item(temp);
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) nNode;
+                    String title = eElement.getElementsByTagName("title").item(0).getTextContent();
+                    String URL = eElement.getElementsByTagName("link").item(0).getTextContent();
+                    String content[] = eElement.getElementsByTagName("description").item(0).getChildNodes().item(0).getTextContent().split("src=\"")[1].split("\">");
+                    String img = content[0];
+                    String description = content[1].substring(0,150) + "...";
+                    newsList.add(new News(title,description,img,URL));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        loadLastNews();
+
+    }
+
+   /* public void prueba(){
         System.out.println("Entra");
         VolleySingleton.getInstance(getContext()).addToRequestQueue(
                 new XmlRequest<>(
@@ -76,11 +153,10 @@ public class NewsFragment extends Fragment {
                         new Response.Listener<Rss>() {
                             @Override
                             public void onResponse(Rss response) {
-                                System.out.println("Noticias");
-                                System.out.println(response.getChannel().getItems());
+                                System.out.println("Noticiassssssssssssssssss");
+                                System.out.println((List< Item > )response);
                                 // Caching
-                               // FeedDatabase.getInstance(getContext()).
-                                 //       sincronizarEntradas(response.getChannel().getItems());
+                               FeedDatabase.getInstance(getContext()).sincronizarEntradas(response.getChannel().getItems());
                                 // Carga inicial de datos...
 
                             }
@@ -94,13 +170,12 @@ public class NewsFragment extends Fragment {
                 )
         );
     }
-
+*/
 
     /**
      * Metodo que carga las ultimas noticias a la lista de noticias
      */
     private void loadLastNews() {
-        newsList.add(new News("Prueba", "Esto es una prueba de noticia", "", "https://elpais.com/sociedad/2020-11-26/ultimas-noticias-del-coronavirus-en-espana-y-en-el-mundo-en-directo.html"));
 
         createAdapter();
     }
@@ -110,6 +185,7 @@ public class NewsFragment extends Fragment {
      */
     private void createAdapter(){
         //Crear el adapter con la lista de noticias cargada
+        System.out.println(newsList.get(0).getTitle());
         ListaNewsAdapter newsAdapter = new ListaNewsAdapter(newsList, new ListaNewsAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(News clickedNew) {
