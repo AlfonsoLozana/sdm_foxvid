@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,18 +20,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.uniovi.foxvid.ListaNewsAdapter;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.controlador.db.FeedDatabase;
-import com.uniovi.foxvid.controlador.db.VolleySingleton;
-import com.uniovi.foxvid.controlador.xml.Content;
-import com.uniovi.foxvid.controlador.xml.Item;
-import com.uniovi.foxvid.controlador.xml.Rss;
-import com.uniovi.foxvid.controlador.xml.XmlRequest;
-import com.uniovi.foxvid.modelo.Coordinate;
 import com.uniovi.foxvid.modelo.News;
-import com.uniovi.foxvid.modelo.Post;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,6 +46,7 @@ public class NewsFragment extends Fragment {
     private static final String URL_FEED = "https://www.abc.es/rss/feeds/abc_SociedadSalud.xml";
     private Button btPost;
     private TextView txtPost;
+    private FeedDatabase feedDatabase;
 
     private List<News> newsList;
 
@@ -65,6 +57,7 @@ public class NewsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        feedDatabase = feedDatabase.getInstance(getContext());
 
         root = inflater.inflate(R.layout.fragment_news, container, false);
 
@@ -75,18 +68,18 @@ public class NewsFragment extends Fragment {
         newsListView.setLayoutManager(layoutManager);
 
         //Cargar ultimas noticias
-        aa();
 
-
-        //prueba();
-
-
-
-
+        loadLastNews();
         return root;
     }
 
-    public void aa(){
+
+
+
+    /**
+     * Metodo que carga las ultimas noticias a la lista de noticias
+     */
+    private void loadLastNews() {
         RequestQueue queue = Volley.newRequestQueue(getContext());
         String url ="http://www.google.com";
 
@@ -96,8 +89,7 @@ public class NewsFragment extends Fragment {
                     @Override
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
-                        parseXML(response);
-
+                        feedDatabase.sincronizarEntradas(parseXML(response));
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -107,11 +99,41 @@ public class NewsFragment extends Fragment {
         });
 
         queue.add(stringRequest);
+        createAdapter();
+    }
+
+    /**
+     * Metodo que crea el adapter con todas las noticias obtenidas, una vez cargadas en la app
+     */
+    private void createAdapter(){
+        //Crear el adapter con la lista de noticias cargada
+        System.out.println("-----------------cima");
+        System.out.println(feedDatabase.getNews());
+        ListaNewsAdapter newsAdapter = new ListaNewsAdapter(feedDatabase.getNews() , new ListaNewsAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(News clickedNew) {
+                clickOnItem(clickedNew);
+            }
+        });
+        newsListView.setAdapter(newsAdapter);
+    }
+
+    /**
+     * Metodo que abre la noticia en el navegador
+     * @param clickedNew, noticia en la que se ha pulsado
+     */
+    private void clickOnItem(News clickedNew) {
+        Log.d("URLNoticia", "URL:"+clickedNew.getUrlNews());
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickedNew.getUrlNews()));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
 
     }
 
-    private void parseXML(String xml){
+    private List<News> parseXML(String xml){
         NodeList nl = null;
+        List<News> news = new ArrayList<News>();
         try {
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -132,79 +154,13 @@ public class NewsFragment extends Fragment {
                     String content[] = eElement.getElementsByTagName("description").item(0).getChildNodes().item(0).getTextContent().split("src=\"")[1].split("\">");
                     String img = content[0];
                     String description = content[1].substring(0,150) + "...";
-                    newsList.add(new News(title,description,img,URL));
+                    news.add(new News(title,description,URL,img));
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        loadLastNews();
-
-    }
-
-   /* public void prueba(){
-        System.out.println("Entra");
-        VolleySingleton.getInstance(getContext()).addToRequestQueue(
-                new XmlRequest<>(
-                        URL_FEED,
-                        Rss.class,
-                        null,
-                        new Response.Listener<Rss>() {
-                            @Override
-                            public void onResponse(Rss response) {
-                                System.out.println("Noticiassssssssssssssssss");
-                                System.out.println((List< Item > )response);
-                                // Caching
-                               FeedDatabase.getInstance(getContext()).sincronizarEntradas(response.getChannel().getItems());
-                                // Carga inicial de datos...
-
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.d(TAG, " Volley: " + error.getMessage());
-                            }
-                        }
-                )
-        );
-    }
-*/
-
-    /**
-     * Metodo que carga las ultimas noticias a la lista de noticias
-     */
-    private void loadLastNews() {
-
-        createAdapter();
-    }
-
-    /**
-     * Metodo que crea el adapter con todas las noticias obtenidas, una vez cargadas en la app
-     */
-    private void createAdapter(){
-        //Crear el adapter con la lista de noticias cargada
-        System.out.println(newsList.get(0).getTitle());
-        ListaNewsAdapter newsAdapter = new ListaNewsAdapter(newsList, new ListaNewsAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(News clickedNew) {
-                clickOnItem(clickedNew);
-            }
-        });
-        newsListView.setAdapter(newsAdapter);
-    }
-
-    /**
-     * Metodo que abre la noticia en el navegador
-     * @param clickedNew, noticia en la que se ha pulsado
-     */
-    private void clickOnItem(News clickedNew) {
-        Log.d("URLNoticia", "URL:"+clickedNew.getUrlNews());
-
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickedNew.getUrlNews()));
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        return news;
 
     }
 

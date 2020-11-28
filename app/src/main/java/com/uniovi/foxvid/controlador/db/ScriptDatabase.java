@@ -9,7 +9,7 @@ public class ScriptDatabase {
     private static final String TAG = ScriptDatabase.class.getSimpleName();
 
     // Metainformación de la base de datos
-    public static final String ENTRADA_TABLE_NAME = "entrada";
+    public static final String ENTRADA_TABLE_NAME = "NEWS";
     public static final String STRING_TYPE = "TEXT";
     public static final String INT_TYPE = "INTEGER";
 

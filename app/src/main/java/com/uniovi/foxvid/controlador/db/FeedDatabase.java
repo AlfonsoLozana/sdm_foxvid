@@ -7,8 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.uniovi.foxvid.controlador.xml.Item;
+import com.uniovi.foxvid.modelo.News;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     private static final int COLUMN_TITULO = 1;
     private static final int COLUMN_DESC = 2;
     private static final int COLUMN_URL = 3;
+    private static final int COLUMN_URL_MINIATURA = 4;
 
     /*
     Instancia singleton
@@ -90,6 +92,26 @@ public final class FeedDatabase extends SQLiteOpenHelper {
                 "select * from " + ScriptDatabase.ENTRADA_TABLE_NAME, null);
     }
 
+    public List<News> getNews(){
+        int id;
+        String titulo;
+        String descripcion;
+        String url;
+        String urlImage;
+        List<News> salida = new ArrayList<News>();
+        Cursor c = obtenerEntradas();
+        while (c.moveToNext()){
+            id = c.getInt(COLUMN_ID);
+            titulo = c.getString(COLUMN_TITULO);
+            descripcion = c.getString(COLUMN_DESC);
+            url = c.getString(COLUMN_URL);
+            urlImage = c.getString(COLUMN_URL_MINIATURA);
+            salida.add(new News(titulo,descripcion,url,urlImage));
+        }
+
+        return salida;
+    }
+
     /**
      * Inserta un registro en la tabla entrada
      *
@@ -154,13 +176,13 @@ public final class FeedDatabase extends SQLiteOpenHelper {
      *
      * @param entries lista de items
      */
-    public void sincronizarEntradas(List<Item> entries) {
+    public void sincronizarEntradas(List<News> entries) {
     /*
     #1  Mapear temporalemente las entradas nuevas para realizar una
         comparación con las locales
     */
-        HashMap<String, Item> entryMap = new HashMap<String, Item>();
-        for (Item e : entries) {
+        HashMap<String, News> entryMap = new HashMap<String, News>();
+        for (News e : entries) {
             entryMap.put(e.getTitle(), e);
         }
 
@@ -179,6 +201,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
         String titulo;
         String descripcion;
         String url;
+        String urlImage;
 
         while (c.moveToNext()) {
 
@@ -187,41 +210,35 @@ public final class FeedDatabase extends SQLiteOpenHelper {
             descripcion = c.getString(COLUMN_DESC);
             url = c.getString(COLUMN_URL);
 
-            Item match = entryMap.get(titulo);
+            News match = entryMap.get(titulo);
             if (match != null) {
                 // Filtrar entradas existentes. Remover para prevenir futura inserción
                 entryMap.remove(titulo);
 
             /*
-            #3.1 Comprobar si la entrada necesita ser actualizada
+            #3.1 Comprobar que las noticias tienen que ver con el COVID
             */
-                if ((match.getTitle() != null && !match.getTitle().equals(titulo)) ||
-                        (match.getDescripcion() != null && !match.getDescripcion().equals(descripcion)) ||
-                        (match.getLink() != null && !match.getLink().equals(url))) {
-                    // Actualizar entradas
-                    actualizarEntrada(
-                            id,
-                            match.getTitle(),
-                            match.getDescripcion(),
-                            match.getLink(),
-                            match.getContent().getUrl()
-                    );
-
+                if (titulo != null && descripcion != null) {
+                    if (!(titulo.contains("covid") || descripcion.contains("covid"))) {
+                        entryMap.remove(titulo);
+                    }
                 }
+
             }
+
         }
         c.close();
 
     /*
     #4 Añadir entradas nuevas
     */
-        for (Item e : entryMap.values()) {
+        for (News e : entryMap.values()) {
             Log.i(TAG, "Insertado: titulo=" + e.getTitle());
             insertarEntrada(
                     e.getTitle(),
-                    e.getDescripcion(),
-                    e.getLink(),
-                    e.getContent().getUrl()
+                    e.getSummary(),
+                    e.getUrlNews(),
+                    e.getImage()
             );
         }
         Log.i(TAG, "Se actualizaron los registros");
