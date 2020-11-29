@@ -33,6 +33,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -136,7 +137,6 @@ public class PostFragment extends Fragment {
 
 
     public void cargarPost(){
-        listPost = new ArrayList<Post>();
         filterUbicacion();
     }
 
@@ -220,6 +220,7 @@ public class PostFragment extends Fragment {
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+        //TODO Solucionar problema con la ubicación
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
                     @Override
@@ -234,13 +235,12 @@ public class PostFragment extends Fragment {
                             loadPost();
                         }else{
                             if(beforeCoordinate.getLon() == 0 && beforeCoordinate.getLat() == 0 &&  numeroDeIntentosCordenados < MAX_NUMBER_OF_INTENTES){
-                                //preguntarPorUbicacion();
+                                preguntarPorUbicacion();
                                 numeroDeIntentosCordenados ++;
                             }else{
                                 coordinate.setLat(beforeCoordinate.getLat());
                                 coordinate.setLon(beforeCoordinate.getLon());
-                                cargarPost();
-
+                                loadPost();
                             }
 
                         }
