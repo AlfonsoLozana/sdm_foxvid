@@ -47,6 +47,28 @@
             android:textAlignment="center"
             android:textColor="#808080" />
 
+        <Button
+            android:id="@+id/btFacebook"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_rounded"
+            android:drawableStart="@drawable/ic_baseline_facebook_24"
+            android:paddingLeft="16dp"
+            android:text="Facebook"
+            android:textAlignment="center"
+            android:textColor="#808080" />
+
+        <Button
+            android:id="@+id/btGithub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_rounded"
+            android:drawableStart="@drawable/github_login_round_24"
+            android:paddingLeft="16dp"
+            android:text="Github"
+            android:textAlignment="center"
+            android:textColor="#808080" />
+
     </LinearLayout>
 
     <TextView

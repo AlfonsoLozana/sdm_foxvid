@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -15,12 +17,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.OAuthProvider;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.User;
 
@@ -37,6 +44,7 @@ public class Login extends AppCompatActivity {
 
     //Componentes
     Button loginButton;
+    Button githubLoginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +70,7 @@ public class Login extends AppCompatActivity {
             mGoogleSignInClient.signOut();
             //GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
 
+
             loginButton = (Button) findViewById(R.id.btGoogle);
             loginButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -69,16 +78,82 @@ public class Login extends AppCompatActivity {
                     signIn();
                 }
             });
+
+            githubLoginButton = (Button) findViewById(R.id.btGithub);
+            githubLoginButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    githubSignIn();
+                }
+            });
         }
 
     }
 
 
-
-
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+
+    private void githubSignIn() {
+        OAuthProvider.Builder provider = OAuthProvider.newBuilder("github.com");
+        Task<AuthResult> pendingResultTask = mAuth.getPendingAuthResult();
+        if (pendingResultTask != null) {
+            // There's something already here! Finish the sign-in for your user.
+            pendingResultTask
+                    .addOnSuccessListener(
+                            new OnSuccessListener<AuthResult>() {
+                                @Override
+                                public void onSuccess(AuthResult authResult) {
+                                    firebaseAuthWithGoogle(authResult.getCredential());
+                                }
+                            })
+                    .addOnFailureListener(
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    // Handle failure.
+                                    Log.d("GithubLogin", "GithubLoginErr1");
+                                }
+                            });
+        } else {
+            mAuth
+                    .startActivityForSignInWithProvider(this, provider.build())
+                    .addOnSuccessListener(
+                            new OnSuccessListener<AuthResult>() {
+                                @Override
+                                public void onSuccess(AuthResult authResult) {
+                                    // User is signed in.
+                                    // IdP data available in
+                                    // authResult.getAdditionalUserInfo().getProfile().
+                                    // The OAuth access token can also be retrieved:
+                                    // authResult.getCredential().getAccessToken().
+                                    firebaseAuthWithGoogle(authResult.getCredential());
+                                }
+                            })
+                    .addOnFailureListener(
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d("GithubLogin", "GithubLoginErr2:");
+                                    e.printStackTrace();
+                                    // Handle failure.
+
+                                    if (e instanceof FirebaseAuthUserCollisionException) {
+                                        Toast.makeText(getApplicationContext(), "Ha ocurrido un error en el inicio de sesión con Github: el correo electrónico ya existe",
+                                                Toast.LENGTH_SHORT).show();
+                                    } else
+                                        Toast.makeText(getApplicationContext(), "Ha ocurrido un error en el inicio de sesión con Github, vuelva a intentarlo",
+                                                Toast.LENGTH_SHORT).show();
+
+                                }
+                            });
+
+        }
+
+
     }
 
     @Override
@@ -93,7 +168,8 @@ public class Login extends AppCompatActivity {
             GoogleSignInAccount account = null;
             try {
                 account = task.getResult(ApiException.class);
-                firebaseAuthWithGoogle(account.getIdToken());
+                AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+                firebaseAuthWithGoogle(credential);
             } catch (ApiException e) {
                 e.printStackTrace();
             }
@@ -102,8 +178,8 @@ public class Login extends AppCompatActivity {
         }
     }
 
-    private void firebaseAuthWithGoogle(String idToken) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+    private void firebaseAuthWithGoogle(AuthCredential credential) {
+
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
