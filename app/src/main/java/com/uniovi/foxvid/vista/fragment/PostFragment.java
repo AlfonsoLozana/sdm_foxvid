@@ -160,6 +160,7 @@ public class PostFragment extends Fragment {
     }
 
     private void updateValues() {
+        listPost = new ArrayList<>();
         db.collection("post")
                 .orderBy("date", Query.Direction.ASCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -173,16 +174,25 @@ public class PostFragment extends Fragment {
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
-                                    if (coordinate.checkDistancia(new Double(dc.getDocument().get("lat").toString()), new Double(dc.getDocument().get("lon").toString()), distancia))
-                                        listPost.add(0, new Post(dc.getDocument().get("uid").toString(),
-                                                dc.getDocument().get("post").toString(),
-                                                //public User(String uid, String name, String email, Uri photo)
-                                                new User(dc.getDocument().get("userUid").toString(), null, dc.getDocument().get("userEmail").toString(), dc.getDocument().get("userImage").toString()),
-                                                (Timestamp) dc.getDocument().get("date"),
-                                                new Coordinate(new Double(dc.getDocument().get("lat").toString()), new Double(dc.getDocument().get("lat").toString())),
-                                                0,
-                                                0)
-                                        );
+                                    if (coordinate.checkDistancia(new Double(dc.getDocument().get("lat").toString()), new Double(dc.getDocument().get("lon").toString()), distancia)) {
+                                        boolean existe = false;
+                                        for (Post p:listPost) {
+                                            if(p.getUuid().equals(dc.getDocument().get("uid")))
+                                                existe = true;
+                                        }
+                                        if(!existe){
+                                            listPost.add(0, new Post(dc.getDocument().get("uid").toString(),
+                                                    dc.getDocument().get("post").toString(),
+                                                    //public User(String uid, String name, String email, Uri photo)
+                                                    new User(dc.getDocument().get("userUid").toString(), null, dc.getDocument().get("userEmail").toString(), dc.getDocument().get("userImage").toString()),
+                                                    (Timestamp) dc.getDocument().get("date"),
+                                                    new Coordinate(new Double(dc.getDocument().get("lat").toString()), new Double(dc.getDocument().get("lat").toString())),
+                                                    0,
+                                                    0)
+                                            );
+                                        }
+
+                                    }
 
                                     break;
                                 case MODIFIED:
@@ -200,9 +210,6 @@ public class PostFragment extends Fragment {
                         for (int i = 0; i < listPost.size(); i++) {
                             updateNumberOfLikes(i);
                         }
-                  
-
-
                     }
                 });
     }
