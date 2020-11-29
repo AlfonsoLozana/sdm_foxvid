@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <string name="app_name">Foxvid</string>
     <string name="prefs_file">com.uniovi.foxvid.PREFERENCE_FILE_KEY</string>
     <!-- TODO: Remove or change this placeholder text -->
@@ -48,4 +48,7 @@
     <string name="imagen_noticia">Imagen de la noticia</string>
     <string name="new_title">Titulo noticia</string>
     <string name="new_summary">Resumen de la noticia</string>
+
+    <!-- Autenticacion de facebook -->
+    <string name="facebook_app_id">376010176811888</string> <string name="fb_login_protocol_scheme">fb376010176811888</string>
 </resources>
