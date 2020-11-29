@@ -125,8 +125,10 @@ public class PostFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        System.out.println("NUmber of post " + listPost.size());
         numeroDeIntentosCordenados = 0;
         cargarPost();
+        System.out.println("NUmber of post " + listPost.size());
     }
 
 
@@ -134,6 +136,7 @@ public class PostFragment extends Fragment {
 
 
     public void cargarPost(){
+        listPost = new ArrayList<Post>();
         filterUbicacion();
     }
 
@@ -157,13 +160,7 @@ public class PostFragment extends Fragment {
     }
 
     private void updateValues() {
-        List listActualPost = new ArrayList();
-        for (Post p : listPost) {
-            listActualPost.add(p.getDate());
-        }
-        //FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("post")
-
                 .orderBy("date", Query.Direction.ASCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -203,6 +200,7 @@ public class PostFragment extends Fragment {
                         for (int i = 0; i < listPost.size(); i++) {
                             updateNumberOfLikes(i);
                         }
+                  
 
 
                     }
