@@ -2,20 +2,37 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.uniovi.foxvid">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label= "Foxvid"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+        <activity android:name=".vista.MainActivity" />
+        <activity android:name=".SettingsActivity"
+            android:parentActivityName=".vista.MainActivity"
+            android:label= "Ajustes"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".vista.Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".vista.NewPostActivity"
+            android:label= ""
+            android:parentActivityName=".vista.MainActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <service
+            android:name=".vista.MainActivity"
+            android:foregroundServiceType="location" />
     </application>
 
 </manifest>

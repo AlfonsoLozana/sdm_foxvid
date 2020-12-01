@@ -1,3 +1,54 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <string name="app_name">Foxvid</string>
+    <string name="prefs_file">com.uniovi.foxvid.PREFERENCE_FILE_KEY</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="imagen_post">Imagen</string>
+    <string name="username">Nombre de usuario</string>
+    <string name="fecha">Fecha del post</string>
+    <string name="texto_post">Texto del post</string>
+    <string name="like_button">Boton de like</string>
+    <string name="number_of_likes">0</string>
+    <string name="dislike_button">Boton de dislike</string>
+    <string name="new_post_hint">¿Qué está pasando?</string>
+    <string name="btn_publish_post">Publicar</string>
+    <string name="title_activity_try">TryActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="cerrar_sesion">Cerrar sesión</string>
+    <string name="title_activity_nav_drawer">NavDrawerActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+
+    <string name="textview_text">SeekBarPreference test</string>
+
+    <string name="menu_settings">Settings</string>
+    <string name="settings_dialog_message">Here comes a message</string>
+    <string name="settings_summary">Current value is $1</string>
+    <string name="settings_unit">Km</string>
+    <string name="settings_title">Here comes the title</string>
+    <string name="nav_bar_posts">Publicaciones</string>
+    <string name="nav_bar_stadistics">Estadísticas</string>
+    <string name="nav_bar_news">Noticias</string>
+    <string name="location_permission_not_given_message">Se requiere permisos de localización</string>
+    <string name="imagen_noticia">Imagen de la noticia</string>
+    <string name="new_title">Titulo noticia</string>
+    <string name="new_summary">Resumen de la noticia</string>
+
+    <!-- Autenticacion de facebook -->
+    <string name="facebook_app_id">376010176811888</string> <string name="fb_login_protocol_scheme">fb376010176811888</string>
 </resources>
