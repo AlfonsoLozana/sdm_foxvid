@@ -51,4 +51,7 @@
 
     <!-- Autenticacion de facebook -->
     <string name="facebook_app_id">376010176811888</string> <string name="fb_login_protocol_scheme">fb376010176811888</string>
+
+
+    <string name="alertaUbicacion">No se puede acceder a la ubicación. Activa la ubicación. Si el problema persiste reinicia la app.</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.uniovi.foxvid.vista.fragment;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -126,10 +127,8 @@ public class PostFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        System.out.println("NUmber of post " + listPost.size());
         numeroDeIntentosCordenados = 0;
         cargarPost();
-        System.out.println("NUmber of post " + listPost.size());
     }
 
 
@@ -250,25 +249,26 @@ public class PostFragment extends Fragment {
     }
 
     private void preguntarPorUbicacion() {
-         customDialog = new Dialog(getContext());
-        customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        customDialog.setCancelable(true);
-        customDialog.setContentView(R.layout.fragment_location);
-        customDialog.getWindow().setLayout(1050,600);
+        if(numeroDeIntentosCordenados == 0 ) {
+            customDialog = new Dialog(getContext());
+            customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            customDialog.setCancelable(true);
+            customDialog.setContentView(R.layout.fragment_location);
+            customDialog.getWindow().setLayout(1070, 850);
 
 
+            ((Button) customDialog.findViewById(R.id.btLocation)).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    customDialog.cancel();
+                    numeroDeIntentosCordenados = -2;
+                    cargarPost();
 
-        ((Button) customDialog.findViewById(R.id.btLocation)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                customDialog.cancel();
-                numeroDeIntentosCordenados = -2;
-                cargarPost();
+                }
+            });
 
-            }
-        });
-
-        customDialog.show();
+            customDialog.show();
+        }
     }
 
 
