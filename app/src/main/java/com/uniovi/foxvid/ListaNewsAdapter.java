@@ -21,6 +21,7 @@ import com.uniovi.foxvid.modelo.News;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.vista.igu.CircleTransform;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,7 @@ public class ListaNewsAdapter extends RecyclerView.Adapter<ListaNewsAdapter.News
 
         public ListaNewsAdapter(List<News> news, OnItemClickListener listener) {
             this.news = news;
+            Collections.reverse(this.news);
             this.listener = listener;
         }
 

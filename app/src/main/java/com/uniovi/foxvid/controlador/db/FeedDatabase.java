@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.uniovi.foxvid.modelo.News;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +74,6 @@ public final class FeedDatabase extends SQLiteOpenHelper {
 
     }
 
-
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Añade los cambios que se realizarán en el esquema
@@ -92,7 +92,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
                 "select * from " + ScriptDatabase.ENTRADA_TABLE_NAME, null);
     }
 
-    public List<News> getNews(){
+    public List<News> getNews() {
         int id;
         String titulo;
         String descripcion;
@@ -100,13 +100,13 @@ public final class FeedDatabase extends SQLiteOpenHelper {
         String urlImage;
         List<News> salida = new ArrayList<News>();
         Cursor c = obtenerEntradas();
-        while (c.moveToNext()){
+        while (c.moveToNext()) {
             id = c.getInt(COLUMN_ID);
             titulo = c.getString(COLUMN_TITULO);
             descripcion = c.getString(COLUMN_DESC);
             url = c.getString(COLUMN_URL);
             urlImage = c.getString(COLUMN_URL_MINIATURA);
-            salida.add(new News(titulo,descripcion,url,urlImage));
+            salida.add(new News(titulo, descripcion, url, urlImage));
         }
 
         return salida;
@@ -115,10 +115,10 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     /**
      * Inserta un registro en la tabla entrada
      *
-     * @param titulo      titulo de la entrada
-     * @param descripcion desripcion de la entrada
-     * @param url         url del articulo
-     * @param url_miniatura   url de la miniatura
+     * @param titulo        titulo de la entrada
+     * @param descripcion   desripcion de la entrada
+     * @param url           url del articulo
+     * @param url_miniatura url de la miniatura
      */
     public void insertarEntrada(
             String titulo,
@@ -140,34 +140,9 @@ public final class FeedDatabase extends SQLiteOpenHelper {
         );
     }
 
-    /**
-     * Modifica los valores de las columnas de una entrada
-     *
-     * @param id          identificador de la entrada
-     * @param titulo      titulo nuevo de la entrada
-     * @param descripcion descripcion nueva para la entrada
-     * @param url         url nueva para la entrada
-     * @param url_miniatura   url nueva para la miniatura de la entrada
-     */
-    public void actualizarEntrada(int id,
-                                  String titulo,
-                                  String descripcion,
-                                  String url,
-                                  String url_miniatura) {
-
-        ContentValues values = new ContentValues();
-        values.put(ScriptDatabase.ColumnEntradas.TITULO, titulo);
-        values.put(ScriptDatabase.ColumnEntradas.DESCRIPCION, descripcion);
-        values.put(ScriptDatabase.ColumnEntradas.URL, url);
-        values.put(ScriptDatabase.ColumnEntradas.URL_MINIATURA, url_miniatura);
-
-        // Modificar entrada
-        getWritableDatabase().update(
-                ScriptDatabase.ENTRADA_TABLE_NAME,
-                values,
-                ScriptDatabase.ColumnEntradas.ID + "=?",
-                new String[]{String.valueOf(id)});
-
+    private void borrarEntrada(String titulo){
+        String array[] = {"titulo"};
+        getWritableDatabase().delete(ScriptDatabase.ENTRADA_TABLE_NAME, "titulo = " + "\"" + titulo + "\"", null);
     }
 
     /**
@@ -177,13 +152,20 @@ public final class FeedDatabase extends SQLiteOpenHelper {
      * @param entries lista de items
      */
     public void sincronizarEntradas(List<News> entries) {
+
     /*
     #1  Mapear temporalemente las entradas nuevas para realizar una
         comparación con las locales
     */
         HashMap<String, News> entryMap = new HashMap<String, News>();
         for (News e : entries) {
-            entryMap.put(e.getTitle(), e);
+            /*
+            #3.1 Comprobar que las noticias tienen que ver con el COVID
+            */
+            if ((e.getTitle().toLowerCase().contains("covid") || (e.getTitle().toLowerCase().contains("sars"))
+                    || (e.getTitle().toLowerCase().contains("coronavirus")) || (e.getTitle().toLowerCase().contains("mascarilla")))) {
+                entryMap.put(e.getTitle(), e);
+            }
         }
 
     /*
@@ -204,7 +186,6 @@ public final class FeedDatabase extends SQLiteOpenHelper {
         String urlImage;
 
         while (c.moveToNext()) {
-
             id = c.getInt(COLUMN_ID);
             titulo = c.getString(COLUMN_TITULO);
             descripcion = c.getString(COLUMN_DESC);
@@ -214,18 +195,15 @@ public final class FeedDatabase extends SQLiteOpenHelper {
             if (match != null) {
                 // Filtrar entradas existentes. Remover para prevenir futura inserción
                 entryMap.remove(titulo);
-
-            /*
-            #3.1 Comprobar que las noticias tienen que ver con el COVID
-            */
-                if (titulo != null && descripcion != null) {
-                    if (!(titulo.contains("covid") || descripcion.contains("covid"))) {
-                        entryMap.remove(titulo);
-                    }
-                }
-
             }
+        }
 
+        int numberOfNews = 0;
+        while (c.moveToNext()) {
+            if(entryMap.size() +  numberOfNews > 20){
+                borrarEntrada(c.getString(COLUMN_TITULO));
+            }
+            numberOfNews ++;
         }
         c.close();
 
@@ -233,6 +211,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     #4 Añadir entradas nuevas
     */
         for (News e : entryMap.values()) {
+
             Log.i(TAG, "Insertado: titulo=" + e.getTitle());
             insertarEntrada(
                     e.getTitle(),
@@ -241,7 +220,6 @@ public final class FeedDatabase extends SQLiteOpenHelper {
                     e.getImage()
             );
         }
-        Log.i(TAG, "Se actualizaron los registros");
 
 
     }

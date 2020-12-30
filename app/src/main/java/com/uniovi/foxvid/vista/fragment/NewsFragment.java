@@ -107,8 +107,6 @@ public class NewsFragment extends Fragment {
      */
     private void createAdapter(){
         //Crear el adapter con la lista de noticias cargada
-        System.out.println("-----------------cima");
-        System.out.println(feedDatabase.getNews());
         ListaNewsAdapter newsAdapter = new ListaNewsAdapter(feedDatabase.getNews() , new ListaNewsAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(News clickedNew) {
