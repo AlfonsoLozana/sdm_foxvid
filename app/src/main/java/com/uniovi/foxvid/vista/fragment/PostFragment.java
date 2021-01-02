@@ -333,7 +333,6 @@ public class PostFragment extends Fragment {
 
 
     private void updateLikes(final int position, int like) {
-        //FirebaseFirestore db = FirebaseFirestore.getInstance();
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DocumentReference postRef = db.collection("post").document(listPost.get(position).getUuid())
                 .collection("interactions").document(userId);
@@ -361,7 +360,6 @@ public class PostFragment extends Fragment {
 
 
     private void updateNumberOfLikes(final int postPosition) {
-        //FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference likeRef = db.collection("post").document(listPost.get(postPosition).getUuid()).collection("interactions");
         Query queryLike = likeRef.whereEqualTo("like", 1);
         Query queryDisike = likeRef.whereEqualTo("like", -1);
