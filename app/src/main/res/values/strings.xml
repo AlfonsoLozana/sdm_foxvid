@@ -54,4 +54,8 @@
 
 
     <string name="alertaUbicacion">No se puede acceder a la ubicación. Activa la ubicación. Si el problema persiste reinicia la app.</string>
+    <string name="successful_post_upload">Se ha publicado correctamente</string>
+    <string name="failure_post_upload">Ha ocrrido un error. Vuelva a intentarlo.</string>
+    <string name="permission_rationale">Permiso de localización necesario para indicar ubicación del usuario</string>
+    <string name="post_text_empty">Introduzca un texto para poder publicarlo</string>
 </resources>
