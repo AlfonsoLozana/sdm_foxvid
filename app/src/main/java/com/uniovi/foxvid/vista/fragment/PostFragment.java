@@ -220,6 +220,7 @@ public class PostFragment extends Fragment {
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+
         //TODO Solucionar problema con la ubicación
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
@@ -250,7 +251,7 @@ public class PostFragment extends Fragment {
     }
 
     private void preguntarPorUbicacion() {
-         customDialog = new Dialog(getContext());
+        customDialog = new Dialog(getContext());
         customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         customDialog.setCancelable(true);
         customDialog.setContentView(R.layout.fragment_location);

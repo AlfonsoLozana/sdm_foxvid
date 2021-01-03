@@ -51,12 +51,10 @@ import java.util.List;
 
 public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
 
-    private Coordinate coordinate;
     private View root;
     SupportMapFragment mapFragment;
 
     private GoogleMap mMap;
-    List<Post> listPost = new ArrayList<>();
     List<LatLng> latLngs = new ArrayList<>();
 
 
@@ -73,8 +71,10 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
     }
 
 
+    /**
+     * Método  que inicia el mapa y lo asigna al componente del fragment destinado para el
+     */
     private void initMap() {
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
@@ -82,14 +82,9 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
 
 
     /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * <p>
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
+     * Se centra la posición en las coordenadas del usuario ademas de acercar el mapa para que se
+     * visualice correctamente.
+     * Tambien se carga la capa para hacer el mapa de calor.
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -99,10 +94,14 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
 
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(centro, 5.2F));
 
-
         createHeatmapLayer();
     }
 
+    /**
+     * Método que crea la capa de calor y la asigna al mapa.
+     * Se obtienen los posts realizados en las últimas 24 horas para visualizar en qué zonas se
+     * están realizando más publicaciones.
+     */
     private void createHeatmapLayer() {
         Timestamp yesterday = new Timestamp(new Date(System.currentTimeMillis() - 1000L * 60L * 60L * 24L));
 
