@@ -51,4 +51,6 @@
 
     <!-- Autenticacion de facebook -->
     <string name="facebook_app_id">376010176811888</string> <string name="fb_login_protocol_scheme">fb376010176811888</string>
+    <string name="permission_denied_explanation">Debe conceder permiso de localizacion</string>
+    <string name="settings">Settings</string>
 </resources>
