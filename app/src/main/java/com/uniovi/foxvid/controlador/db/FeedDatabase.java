@@ -23,6 +23,9 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     private static final int COLUMN_URL = 3;
     private static final int COLUMN_URL_MINIATURA = 4;
 
+    // Número de noticias mostradas
+    private static  final int NUM_NEWS = 15;
+
     /*
     Instancia singleton
     */
@@ -44,6 +47,9 @@ public final class FeedDatabase extends SQLiteOpenHelper {
      */
     public static final int DATABASE_VERSION = 1;
 
+     //Array que contiene las palabras que debe contener una publicación para determinar que una
+    // noticia esta relaccionada con el covid
+    public static final String[] keyword = {"covid","sars","vacuna","mascarilla","coronavirus"};
 
     private FeedDatabase(Context context) {
         super(context,
@@ -89,7 +95,8 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     public Cursor obtenerEntradas() {
         // Seleccionamos todas las filas de la tabla 'entrada'
         return getWritableDatabase().rawQuery(
-                "select * from " + ScriptDatabase.ENTRADA_TABLE_NAME, null);
+                "select * from " + ScriptDatabase.ENTRADA_TABLE_NAME +
+                        " ORDER BY _id DESC", null);
     }
 
     public List<News> getNews() {
@@ -141,7 +148,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     }
 
     private void borrarEntrada(String titulo){
-        String array[] = {"titulo"};
+        System.out.println("Debug: número de noticia borrada: " + titulo );
         getWritableDatabase().delete(ScriptDatabase.ENTRADA_TABLE_NAME, "titulo = " + "\"" + titulo + "\"", null);
     }
 
@@ -162,8 +169,9 @@ public final class FeedDatabase extends SQLiteOpenHelper {
             /*
             #3.1 Comprobar que las noticias tienen que ver con el COVID
             */
-            if ((e.getTitle().toLowerCase().contains("covid") || (e.getTitle().toLowerCase().contains("sars"))
-                    || (e.getTitle().toLowerCase().contains("coronavirus")) || (e.getTitle().toLowerCase().contains("mascarilla")))) {
+            if(comprobarKeyWords(e.getTitle())){
+                entryMap.put(e.getTitle(), e);
+            }else if (comprobarKeyWords(e.getSummary())){
                 entryMap.put(e.getTitle(), e);
             }
         }
@@ -199,11 +207,16 @@ public final class FeedDatabase extends SQLiteOpenHelper {
         }
 
         int numberOfNews = 0;
+        c = obtenerEntradas();
+        System.out.println("Debug: número de noticias: " + entryMap.size() );
         while (c.moveToNext()) {
-            if(entryMap.size() +  numberOfNews > 20){
-                borrarEntrada(c.getString(COLUMN_TITULO));
+            System.out.println("Debug: id: " +c.getColumnName(COLUMN_ID) );
+            if(entryMap.size() +  numberOfNews >= NUM_NEWS){
+                    System.out.println("Debug: Entrar entro");
+                    borrarEntrada(c.getString(COLUMN_TITULO));
             }
             numberOfNews ++;
+            System.out.println("Debug: número de noticias recorridas: " + numberOfNews );
         }
         c.close();
 
@@ -222,6 +235,15 @@ public final class FeedDatabase extends SQLiteOpenHelper {
         }
 
 
+    }
+
+    private boolean comprobarKeyWords(String text){
+        for(String key:keyword){
+            if(text.contains(key)){
+                return true;
+            }
+        }
+        return false;
     }
 
 }
