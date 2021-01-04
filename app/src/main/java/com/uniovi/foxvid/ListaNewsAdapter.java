@@ -38,7 +38,7 @@ public class ListaNewsAdapter extends RecyclerView.Adapter<ListaNewsAdapter.News
 
         public ListaNewsAdapter(List<News> news, OnItemClickListener listener) {
             this.news = news;
-            Collections.reverse(this.news);
+            //Collections.reverse(this.news);
             this.listener = listener;
         }
 
