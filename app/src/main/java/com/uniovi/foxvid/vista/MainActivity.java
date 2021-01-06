@@ -121,9 +121,26 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Metodo que carga los posts si se dan permisos de ubicacion
+//        hasAccessToLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+//
+//
+//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+//        locationRequest = new LocationRequest();
+//        locationCallback = new LocationCallback() {
+//            @Override
+//            public void onLocationResult(LocationResult locationResult) {
+//                if (locationResult == null) {
+//                    return;
+//                }
+//            }
+//        };
+//
+//        getLocation();
+        askForPermissions();
+    }
+
+    public void askForPermissions(){
         hasAccessToLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-
-
 
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -139,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
 
         getLocation();
     }
-
 
     @Override
     protected void onPause() {

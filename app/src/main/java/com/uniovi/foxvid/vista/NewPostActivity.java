@@ -28,6 +28,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.uniovi.foxvid.LocationHandler;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Coordinate;
 
@@ -42,11 +43,10 @@ public class NewPostActivity extends AppCompatActivity {
     private int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
     private TextView txtPost;
-    private Coordinate coordinate;
 
     private Toolbar toolbar;
-    OnSuccessListener<Location> listener;
 
+    LocationHandler handler = LocationHandler.getLocationHandler();
 
 
     @Override
@@ -61,21 +61,7 @@ public class NewPostActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         txtPost = (TextView) findViewById(R.id.txtNewPost);
-        coordinate = new Coordinate(0.0, 0.0);
-
-        listener = new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-
-                    coordinate.setLat(location.getLatitude());
-                    coordinate.setLon(location.getLongitude());
-
-                }
-            }
-        };
-
-        updateLocate(listener);
+        handler.updateLocate(this, null);
 
 
     }
@@ -115,9 +101,9 @@ public class NewPostActivity extends AppCompatActivity {
             showSnackbar(R.string.post_text_empty, 0, null);
         }
         //Si la localización delusuario no se ha obtenido correctamente
-        else if (coordinate.getLat().isNaN() || coordinate.getLat().isInfinite() || coordinate.getLat() == 0) {
+        else if (handler.getUserCoordinate().getLat().isNaN() || handler.getUserCoordinate().getLat().isInfinite() || handler.getUserCoordinate().getLat() == 0) {
             System.out.println("Debug: todo mal");
-            updateLocate(listener);
+            handler.updateLocate(this, null);
         }
         //Si no hay errores
         else {
@@ -133,8 +119,8 @@ public class NewPostActivity extends AppCompatActivity {
             posts.put("userEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
             posts.put("userImage", FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString());
             posts.put("date", Timestamp.now());
-            posts.put("lat", coordinate.getLat());
-            posts.put("lon", coordinate.getLon());
+            posts.put("lat", handler.getUserCoordinate().getLat());
+            posts.put("lon", handler.getUserCoordinate().getLon());
             posts.put("nLikes", 0);
             posts.put("nDislikes", 0);
             txtPost.setText("");
@@ -156,37 +142,6 @@ public class NewPostActivity extends AppCompatActivity {
                         }
                     });
         }
-    }
-
-    /**
-     * Método que obtiene la última localización conocida del usuario.
-     * Si no tiene los permisos necesarios, le muestra un mensaje para poder darlos.
-     * @param listener, listener con la funcionalidad que se espera al obtener la última ubicación del usuario
-     */
-    private void updateLocate(OnSuccessListener<Location> listener) {
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(),
-                ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getApplicationContext(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            //En caso de que no se hayan concedido los permisos, pedir al usuario que los active
-            showSnackbar(R.string.permission_rationale, android.R.string.ok, new View.OnClickListener(){
-                @Override
-                public void onClick(View view) {
-                    ActivityCompat.requestPermissions( NewPostActivity.this,
-                            new String[]{ACCESS_FINE_LOCATION},
-                            REQUEST_PERMISSIONS_REQUEST_CODE);
-                }
-            });
-
-        }
-        else {
-            //En caso de tener los permisos, obtener la última localización del usuario y almacenarla
-            fusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, listener);
-        }
-
     }
 
 

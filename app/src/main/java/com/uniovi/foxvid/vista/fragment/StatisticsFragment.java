@@ -49,6 +49,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.uniovi.foxvid.ListaPostAdapter;
+import com.uniovi.foxvid.LocationHandler;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Coordinate;
 import com.uniovi.foxvid.modelo.Post;
@@ -70,6 +71,8 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
     LatLng centro;
     List<LatLng> latLngs = new ArrayList<>();
+
+    LocationHandler handler = LocationHandler.getLocationHandler();
 
 
     @Override
@@ -107,8 +110,25 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
         centro = new LatLng(40.4165, -3.70256);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(centro, 5.2F));
 
+        OnSuccessListener<Location> listener = new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                // Got last known location. In some rare situations this can be null.
+                if (location != null) {
+                    setCentro(handler.getUserCoordinate());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(centro, 6.2F));
+                }
+            }
+        };
+
+        handler.updateLocate(getActivity(), listener);
+
         createHeatmapLayer();
 
+    }
+
+    private void setCentro(Coordinate userCoordinate) {
+        this.centro = new LatLng(userCoordinate.getLat(), userCoordinate.getLon());
     }
 
     /**
