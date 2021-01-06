@@ -19,6 +19,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +31,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 
 
@@ -54,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     //get access to location permission
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    boolean hasAccessToLocation=false;
+    boolean hasAccessToLocation = false;
 
     private Button btLogOut;
 
@@ -66,6 +72,12 @@ public class MainActivity extends AppCompatActivity {
 
     private User user;
     Dialog customDialog = null;
+
+
+    //////// ALfonso //////
+    private LocationCallback locationCallback;
+    private LocationRequest locationRequest;
+    private FusedLocationProviderClient fusedLocationClient;
 
 
     @Override
@@ -109,10 +121,39 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Metodo que carga los posts si se dan permisos de ubicacion
-        hasAccessToLocation = ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) == PackageManager.PERMISSION_GRANTED;
+        hasAccessToLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+
+
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        locationRequest = new LocationRequest();
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    System.out.println("FFFFFFFFFFFFFFFF");
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                   System.out.println("Localilzación: " + location.getLatitude());
+                }
+            }
+        };
+
         getLocation();
     }
 
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    private void stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
 
 
     @Override
@@ -145,6 +186,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else {
+            System.out.println("Debug: Hay permisos");
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
             loadPostView();
         }
     }

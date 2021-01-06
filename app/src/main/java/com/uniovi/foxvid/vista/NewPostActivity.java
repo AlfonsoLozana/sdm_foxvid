@@ -111,15 +111,17 @@ public class NewPostActivity extends AppCompatActivity {
     private void post() {
         //Si no se ha escrito nada
         if (txtPost.getText().toString().isEmpty()) {
+            System.out.println("Debug: todo mal");
             showSnackbar(R.string.post_text_empty, 0, null);
         }
         //Si la localización delusuario no se ha obtenido correctamente
         else if (coordinate.getLat().isNaN() || coordinate.getLat().isInfinite() || coordinate.getLat() == 0) {
+            System.out.println("Debug: todo mal");
             updateLocate(listener);
         }
         //Si no hay errores
         else {
-
+            System.out.println("Debug: todo bien");
             FirebaseFirestore db = FirebaseFirestore.getInstance();
 
             //se obtienen todos los datos necesarios para hacer el post y se añaden en un mapa.

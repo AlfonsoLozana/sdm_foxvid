@@ -150,6 +150,7 @@ public class PostFragment extends Fragment {
             public void onSuccess(Location location) {
                 // Got last known location. In some rare situations this can be null.
                 if (location != null) {
+                    System.out.println("Debug: " + location.getLatitude() + " - " + location.getLatitude());
                     coordinate.setLat(location.getLatitude());
                     coordinate.setLon(location.getLongitude());
                     beforeCoordinate.setLat(location.getLatitude());
@@ -157,6 +158,7 @@ public class PostFragment extends Fragment {
                     numeroDeIntentosCordenados = 0;
                     loadPost();
                 } else {
+                    System.out.println("Debug: No se detecta la ubicación"  );
                     if (beforeCoordinate.getLon() == 0 && beforeCoordinate.getLat() == 0 && numeroDeIntentosCordenados < MAX_NUMBER_OF_INTENTES) {
                         preguntarPorUbicacion();
                         numeroDeIntentosCordenados++;
