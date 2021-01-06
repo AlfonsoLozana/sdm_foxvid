@@ -150,7 +150,6 @@ public class PostFragment extends Fragment {
             public void onSuccess(Location location) {
                 // Got last known location. In some rare situations this can be null.
                 if (location != null) {
-                    System.out.println("Debug: " + location.getLatitude() + " - " + location.getLatitude());
                     coordinate.setLat(location.getLatitude());
                     coordinate.setLon(location.getLongitude());
                     beforeCoordinate.setLat(location.getLatitude());
@@ -158,7 +157,6 @@ public class PostFragment extends Fragment {
                     numeroDeIntentosCordenados = 0;
                     loadPost();
                 } else {
-                    System.out.println("Debug: No se detecta la ubicación"  );
                     if (beforeCoordinate.getLon() == 0 && beforeCoordinate.getLat() == 0 && numeroDeIntentosCordenados < MAX_NUMBER_OF_INTENTES) {
                         preguntarPorUbicacion();
                         numeroDeIntentosCordenados++;
@@ -190,7 +188,7 @@ public class PostFragment extends Fragment {
     private void updateValues() {
         listPost = new ArrayList<>();
         db.collection("post")
-                .orderBy("date", Query.Direction.ASCENDING)
+                .orderBy("date", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot snapshots,
@@ -199,40 +197,7 @@ public class PostFragment extends Fragment {
                             //Log.w(TAG, "listen:error", e);
                             return;
                         }
-                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            switch (dc.getType()) {
-                                case ADDED:
-                                    if (coordinate.checkDistancia(Double.valueOf(dc.getDocument().get("lat").toString()), Double.valueOf(dc.getDocument().get("lon").toString()), distancia)) {
-                                        boolean existe = false;
-                                        for (Post p : listPost) {
-                                            if (p.getUuid().equals(dc.getDocument().get("uid")))
-                                                existe = true;
-                                        }
-                                        if (!existe) {
-                                            listPost.add(0, new Post(dc.getDocument().get("uid").toString(),
-                                                    dc.getDocument().get("post").toString(),
-                                                    //public User(String uid, String name, String email, Uri photo)
-                                                    new User(dc.getDocument().get("userUid").toString(), null, dc.getDocument().get("userEmail").toString(), dc.getDocument().get("userImage").toString()),
-                                                    (Timestamp) dc.getDocument().get("date"),
-                                                    new Coordinate(valueOf(dc.getDocument().get("lat").toString()), Double.valueOf(dc.getDocument().get("lat").toString())),
-                                                    0,
-                                                    0)
-                                            );
-                                        }
-
-                                    }
-
-                                    break;
-                                case MODIFIED:
-                                    //Log.d(TAG, "Modified city: " + dc.getDocument().getData());
-                                    break;
-                                case REMOVED:
-                                    //Log.d(TAG, "Removed city: " + dc.getDocument().getData());
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
+                        addPost(snapshots);
 
                         adapter = new ListaPostAdapter(listPost);
                         listPostView.setAdapter(adapter);
@@ -245,6 +210,55 @@ public class PostFragment extends Fragment {
     }
 
     /**
+     * Método que recorre los posts de la base de datos y los añade a la lista de post
+     * @param snapshots
+     */
+    private void addPost(QuerySnapshot snapshots){
+        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+            switch (dc.getType()) {
+                case ADDED:
+                    if(!checkPost(dc)) return;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private boolean checkPost(DocumentChange dc){
+        if (checkDistancia(dc)) {
+            boolean existe = false;
+            for (Post p : listPost) {
+                if (p.getUuid().equals(dc.getDocument().get("uid")))
+                    existe = true;
+            }
+            if (!existe) {
+                if(listPost.size() > 5){
+                    return false;
+                }
+                listPost.add(crearPost(dc));
+            }
+        }
+        return true;
+    }
+
+    private Post crearPost(DocumentChange dc){
+        return new Post(dc.getDocument().get("uid").toString(),
+                dc.getDocument().get("post").toString(),
+                //public User(String uid, String name, String email, Uri photo)
+                new User(dc.getDocument().get("userUid").toString(), null, dc.getDocument().get("userEmail").toString(),
+                        dc.getDocument().get("userImage").toString()),
+                (Timestamp) dc.getDocument().get("date"),
+                new Coordinate(valueOf(dc.getDocument().get("lat").toString()), Double.valueOf(dc.getDocument().get("lat").toString())),
+                0,
+                0);
+    }
+
+    private boolean checkDistancia(DocumentChange dc){
+        return coordinate.checkDistancia(Double.valueOf(dc.getDocument().get("lat").toString()),
+                Double.valueOf(dc.getDocument().get("lon").toString()), distancia);
+    }
+    /**
      * Método que obtiene la última localización conocida del usuario.
      * Si no tiene los permisos necesarios, le muestra un mensaje para poder darlos.
      * @param listener, listener con la funcionalidad que se espera al obtener la última ubicación del usuario
@@ -255,35 +269,7 @@ public class PostFragment extends Fragment {
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        // TODO Solucionar problema con la ubicación.
-        // TODO Puse esto separado por si lo sacamos a un LocationHandler o algo asi, que se usa en más sitios. Miralo en el cargarPost y en NewPostActivity
         fusedLocationClient.getLastLocation().addOnSuccessListener(getActivity(), listener);
-
-//        fusedLocationClient.getLastLocation()
-//                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-//                    @Override
-//                    public void onSuccess(Location location) {
-//                        // Got last known location. In some rare situations this can be null.
-//                        if (location != null) {
-//                            coordinate.setLat(location.getLatitude());
-//                            coordinate.setLon(location.getLongitude());
-//                            beforeCoordinate.setLat(location.getLatitude());
-//                            beforeCoordinate.setLon(location.getLongitude());
-//                            numeroDeIntentosCordenados = 0;
-//                            loadPost();
-//                        }else{
-//                            if(beforeCoordinate.getLon() == 0 && beforeCoordinate.getLat() == 0 &&  numeroDeIntentosCordenados < MAX_NUMBER_OF_INTENTES){
-//                                preguntarPorUbicacion();
-//                                numeroDeIntentosCordenados ++;
-//                            }else{
-//                                coordinate.setLat(beforeCoordinate.getLat());
-//                                coordinate.setLon(beforeCoordinate.getLon());
-//                                loadPost();
-//                            }
-//
-//                        }
-//                    }
-//                });
 
     }
 

@@ -132,11 +132,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 if (locationResult == null) {
-                    System.out.println("FFFFFFFFFFFFFFFF");
                     return;
-                }
-                for (Location location : locationResult.getLocations()) {
-                   System.out.println("Localilzación: " + location.getLatitude());
                 }
             }
         };
@@ -186,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else {
-            System.out.println("Debug: Hay permisos");
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
             loadPostView();
         }
