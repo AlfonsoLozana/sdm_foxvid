@@ -146,13 +146,6 @@ public class PostFragment extends Fragment {
         //Se carga el gesto de los posts para dar like y dislike
         createGesture();
 
-
-        //TODO Esto que ta comentao fae falta??
-//        Bundle args = getArguments();
-//        if (args != null) {
-//
-//        }
-
         cargarPost();
 
         //Floating button que carga la activity para crear nuevos posts
@@ -298,6 +291,7 @@ public class PostFragment extends Fragment {
         return coordinate.checkDistancia(Double.valueOf(dc.getDocument().get("lat").toString()),
                 Double.valueOf(dc.getDocument().get("lon").toString()), distancia);
     }
+
     /**
      * Método que obtiene la última localización conocida del usuario.
      * Si no tiene los permisos necesarios, le muestra un mensaje para poder darlos.
@@ -485,9 +479,5 @@ public class PostFragment extends Fragment {
                     }
                 }
             });
-
-
     }
-
-
 }
