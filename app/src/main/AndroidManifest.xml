@@ -13,6 +13,11 @@
         android:label= "Foxvid"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
         <activity android:name=".vista.MainActivity" />
         <activity android:name=".SettingsActivity"
             android:parentActivityName=".vista.MainActivity"
