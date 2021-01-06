@@ -23,6 +23,7 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -83,18 +84,27 @@ public class PostFragment extends Fragment {
     private int numeroDeIntentosCordenados;
     public int distancia;
     private ListaPostAdapter adapter;
+    private RecyclerView.LayoutManager layoutManager;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Dialog customDialog;
+    private int numOfPost = -1;
+    private boolean cargando = false;
 
 
     RecyclerView listPostView;
     View root;
     FloatingActionButton btnNewPost;
 
+
+    // Layout de refresco
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
 
         coordinate = new Coordinate(0.0, 0.0);
         beforeCoordinate = new Coordinate(0.0, 0.0);
@@ -105,6 +115,33 @@ public class PostFragment extends Fragment {
         if (listPost == null) listPost = new ArrayList<Post>();
 
         listPostView = (RecyclerView) root.findViewById(R.id.idRvPost);
+        swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipeRefreshLayout);
+
+       /* listPostView.addOnScrollListener(new RecyclerView.OnScrollListener()
+        {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
+            {
+                if(dy > 0) //check for scroll down
+                {
+                    if(!cargando){
+                        numOfPost += 5;
+                        cargando = true;
+                        //System.out.println("Tamos en las ultimas");
+                        cargarPost();
+                    }
+
+                }
+            }
+        });*/
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Esto se ejecuta cada vez que se realiza el gesto
+                cargarPost();
+            }
+        });
 
         //Se carga el gesto de los posts para dar like y dislike
         createGesture();
@@ -170,14 +207,17 @@ public class PostFragment extends Fragment {
             }
         };
 
+        swipeRefreshLayout.setRefreshing(false);
+        cargando = false;
         updateLocate(listener);
     }
 
     protected void loadPost() {
         listPostView.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager = new LinearLayoutManager(getContext());
         listPostView.setLayoutManager(layoutManager);
         updateValues();
+
     }
 
     protected void loadNewPostActivity() {
@@ -233,7 +273,7 @@ public class PostFragment extends Fragment {
                     existe = true;
             }
             if (!existe) {
-                if(listPost.size() > 5){
+                if(listPost.size() > numOfPost && numOfPost != -1){
                     return false;
                 }
                 listPost.add(crearPost(dc));
@@ -418,33 +458,35 @@ public class PostFragment extends Fragment {
         //Query para obtener el numero de dislikes
         Query queryDisike = likeRef.whereEqualTo("like", -1);
 
-        //Llamada a la query para obtener los likes y contarlos
-        queryLike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    int numberOfLikes = task.getResult().size();
-                    listPost.get(postPosition).setnLikes(numberOfLikes);
-                    adapter.notifyItemChanged(postPosition);
-                } else {
-                    Log.d("LikeCount", "Error getting documents: ", task.getException());
+            //Llamada a la query para obtener los likes y contarlos
+            queryLike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful() && listPost.size()!= 0) {
+                        int numberOfLikes = task.getResult().size();
+                        listPost.get(postPosition).setnLikes(numberOfLikes);
+                        adapter.notifyItemChanged(postPosition);
+                    } else {
+                        Log.d("LikeCount", "Error getting documents: ", task.getException());
+                    }
                 }
-            }
-        });
+            });
 
-        //Llamada a la query para obtener los likes y contarlos
-        queryDisike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    int numberOfDislikes = task.getResult().size();
-                    listPost.get(postPosition).setnDislikes(numberOfDislikes);
-                    adapter.notifyItemChanged(postPosition);
-                } else {
-                    Log.d("LikeCount", "Error getting documents: ", task.getException());
+            //Llamada a la query para obtener los likes y contarlos
+            queryDisike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful() && listPost.size()!= 0) {
+                        int numberOfDislikes = task.getResult().size();
+                        listPost.get(postPosition).setnDislikes(numberOfDislikes);
+                        adapter.notifyItemChanged(postPosition);
+                    } else {
+                        Log.d("LikeCount", "Error getting documents: ", task.getException());
+                    }
                 }
-            }
-        });
+            });
+
+
     }
 
 
