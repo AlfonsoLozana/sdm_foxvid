@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -103,6 +104,7 @@ public class LocationHandler {
                             preguntarPorUbicacion(callingActivity);
                             numeroDeIntentosCordenadas++;
                         } else {
+                            showSnackbar(callingActivity, R.string.location_deactivated, 0, null);
                             coordinate.setLat(beforeCoordinate.getLat());
                             coordinate.setLon(beforeCoordinate.getLon());
 
@@ -121,7 +123,7 @@ public class LocationHandler {
 
     public void showPermissionMessage(Activity activity) {
         callingActivity=activity;
-        showSnackbar(activity, new View.OnClickListener(){
+        showSnackbar(activity, R.string.permission_rationale, android.R.string.ok, new View.OnClickListener(){
             @Override
             public void onClick(View view) {
                 ActivityCompat.requestPermissions( callingActivity,
@@ -177,12 +179,12 @@ public class LocationHandler {
      * además también se le puede asignar una texto y un listener para el botón de acción.
      * @param listener, listener con la funcionalidad del botón, de tipo View.OnClickListener
      */
-    private void showSnackbar(Activity activity, View.OnClickListener listener) {
+    private void showSnackbar(Activity activity, int snackStrId, int actionStrId, View.OnClickListener listener) {
         Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content),
-                activity.getString(R.string.permission_rationale),
+                activity.getString(snackStrId),
                 BaseTransientBottomBar.LENGTH_LONG);
 
-        if (android.R.string.ok != 0 && listener != null) {
+        if (actionStrId != 0 && listener != null) {
             snackbar.setAction(activity.getString(android.R.string.ok), listener);
         }
 
