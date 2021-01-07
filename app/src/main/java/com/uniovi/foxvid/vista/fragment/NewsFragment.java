@@ -94,6 +94,7 @@ public class NewsFragment extends Fragment {
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
                         feedDatabase.sincronizarEntradas(parseXML(response));
+                        createAdapter();
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -104,6 +105,7 @@ public class NewsFragment extends Fragment {
 
         queue.add(stringRequest);
         createAdapter();
+
     }
 
     /**
