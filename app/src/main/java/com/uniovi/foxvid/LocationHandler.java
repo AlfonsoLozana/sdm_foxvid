@@ -1,33 +1,41 @@
 package com.uniovi.foxvid;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
+import android.os.Looper;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentChange;
 import com.uniovi.foxvid.modelo.Coordinate;
-import com.uniovi.foxvid.vista.NewPostActivity;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.content.Context.LOCATION_SERVICE;
 
 public class LocationHandler {
 
+    @SuppressLint("StaticFieldLeak")
     private static LocationHandler handler = null;
 
-    private int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
+    private final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     public static final int MAX_NUMBER_OF_TRIES = 3;
+    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
     private Dialog customDialog;
 
@@ -36,6 +44,11 @@ public class LocationHandler {
     private int numeroDeIntentosCordenadas = 0;
     private Activity callingActivity;
 
+
+    private LocationCallback locationCallback;
+    private LocationRequest locationRequest;
+    private FusedLocationProviderClient fusedLocationClient;
+    boolean hasAccessToLocation = false;
 
 
     public static LocationHandler getLocationHandler() {
@@ -56,6 +69,7 @@ public class LocationHandler {
      * Si no tiene los permisos necesarios, le muestra un mensaje para poder darlos.
      */
     public void updateLocate(Activity activity, OnSuccessListener<Location> activityListener) {
+
         callingActivity = activity;
 
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(callingActivity);
@@ -65,14 +79,8 @@ public class LocationHandler {
                         Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             //En caso de que no se hayan concedido los permisos, pedir al usuario que los active
-            showSnackbar(activity, R.string.permission_rationale, android.R.string.ok, new View.OnClickListener(){
-                @Override
-                public void onClick(View view) {
-                    ActivityCompat.requestPermissions( callingActivity,
-                            new String[]{ACCESS_FINE_LOCATION},
-                            REQUEST_PERMISSIONS_REQUEST_CODE);
-                }
-            });
+            showPermissionMessage(activity);
+
 
         }
         else {
@@ -106,6 +114,17 @@ public class LocationHandler {
                 fusedLocationClient.getLastLocation().addOnSuccessListener(activity, listener);
         }
 
+    }
+
+    public void showPermissionMessage(final Activity activity) {
+        showSnackbar(activity, new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                ActivityCompat.requestPermissions( activity,
+                        new String[]{ACCESS_FINE_LOCATION},
+                        REQUEST_PERMISSIONS_REQUEST_CODE);
+            }
+        });
     }
 
 
@@ -152,21 +171,61 @@ public class LocationHandler {
     /**
      * Método que muestra un snackbar con un mensaje que se le pasa por parámetro,
      * además también se le puede asignar una texto y un listener para el botón de acción.
-     * @param snackStrId, id de la cadena que se desea mostrar, de tipo int
-     * @param actionStrId, id de la cadena del botón que ejecuta la acción del listener, de tipo int
      * @param listener, listener con la funcionalidad del botón, de tipo View.OnClickListener
      */
-    private void showSnackbar(Activity activity, int snackStrId, int actionStrId, View.OnClickListener listener) {
+    private void showSnackbar(Activity activity, View.OnClickListener listener) {
         Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content),
-                activity.getString(snackStrId),
-                BaseTransientBottomBar.LENGTH_INDEFINITE);
+                activity.getString(R.string.permission_rationale),
+                BaseTransientBottomBar.LENGTH_LONG);
 
-        if (actionStrId != 0 && listener != null) {
-            snackbar.setAction(activity.getString(actionStrId), listener);
+        if (android.R.string.ok != 0 && listener != null) {
+            snackbar.setAction(activity.getString(android.R.string.ok), listener);
         }
 
         snackbar.show();
     }
 
 
+
+    public void askForPermissions(Activity activity, LocationCallback callback){
+        //Metodo que carga los posts si se dan permisos de ubicacion
+        hasAccessToLocation = ContextCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+        locationRequest = new LocationRequest();
+        locationCallback = callback;
+
+        getLocation(activity);
+    }
+
+    //Get location
+    public void getLocation(Activity activity) {
+        activity.getSystemService(LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                activity.requestPermissions(new String[]{
+                                Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_CODE_ASK_PERMISSIONS);
+            }
+        }
+        else {
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+
+        }
+    }
+
+    public void stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+
+//    public boolean isHasAccessToLocation(){
+//        return hasAccessToLocation;
+//    }
+
+    public void setHasAccessToLocation(boolean b) {
+        this.hasAccessToLocation=b;
+    }
 }

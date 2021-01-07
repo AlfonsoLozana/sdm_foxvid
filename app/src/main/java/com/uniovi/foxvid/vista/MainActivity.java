@@ -1,26 +1,9 @@
 package com.uniovi.foxvid.vista;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceManager;
-import androidx.preference.SeekBarPreference;
-
-import android.Manifest;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,53 +14,48 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.firebase.auth.FirebaseAuth;
-
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-
+import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
+import com.uniovi.foxvid.LocationHandler;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.SettingsActivity;
-import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
-
 import com.uniovi.foxvid.vista.fragment.NewsFragment;
 import com.uniovi.foxvid.vista.fragment.PostFragment;
 import com.uniovi.foxvid.vista.fragment.StatisticsFragment;
 import com.uniovi.foxvid.vista.igu.CircleTransform;
 
-
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
 
     //get access to location permission
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    boolean hasAccessToLocation = false;
-
-    private Button btLogOut;
-
-    private List<Post> listPost;
-    private Toolbar toolbar;
+//    boolean hasAccessToLocation = false;
+//
+//    private Button btLogOut;
+//
+//    private List<Post> listPost;
+//    private Toolbar toolbar;
     private ImageButton btProfile;
     private ImageButton btSettings;
-    private FirebaseAuth mAuth;
+//    private FirebaseAuth mAuth;
 
     private User user;
     Dialog customDialog = null;
 
 
     //////// ALfonso //////
-    private LocationCallback locationCallback;
-    private LocationRequest locationRequest;
-    private FusedLocationProviderClient fusedLocationClient;
+//    private LocationCallback locationCallback;
+//    private LocationRequest locationRequest;
+//    private FusedLocationProviderClient fusedLocationClient;
+
+
+    LocationHandler handler = LocationHandler.getLocationHandler();
 
 
     @Override
@@ -120,52 +98,52 @@ public class MainActivity extends AppCompatActivity {
         );
 
 
-        //Metodo que carga los posts si se dan permisos de ubicacion
-//        hasAccessToLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-//
-//
-//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-//        locationRequest = new LocationRequest();
+        LocationCallback locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                else{
+                    loadPostView();
+                }
+            }
+        };
+
+        handler.askForPermissions(this, locationCallback);
+    }
+
+//    public void askForPermissions(){
+//        //Metodo que carga los posts si se dan permisos de ubicacion
+////        hasAccessToLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+////
+////
+////        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+////        locationRequest = new LocationRequest();
 //        locationCallback = new LocationCallback() {
 //            @Override
 //            public void onLocationResult(LocationResult locationResult) {
 //                if (locationResult == null) {
 //                    return;
 //                }
+//                else{
+//                    loadPostView();
+//                }
 //            }
 //        };
 //
-//        getLocation();
-        askForPermissions();
-    }
-
-    public void askForPermissions(){
-        hasAccessToLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        locationRequest = new LocationRequest();
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-            }
-        };
-
-        getLocation();
-    }
+//        handler.getLocation(this);
+//    }
 
     @Override
     protected void onPause() {
         super.onPause();
-        stopLocationUpdates();
+        handler.stopLocationUpdates();
     }
 
-    private void stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback);
-    }
+//    private void stopLocationUpdates() {
+//        fusedLocationClient.removeLocationUpdates(locationCallback);
+//    }
 
 
     @Override
@@ -173,12 +151,14 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case REQUEST_CODE_ASK_PERMISSIONS:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    hasAccessToLocation=true;
-                    getLocation();
+                    handler.setHasAccessToLocation(true);
+//                    hasAccessToLocation=true;
+                    handler.getLocation(this);
                 } else {
                     // Permission Denied
-                    Toast.makeText(this, R.string.location_permission_not_given_message, Toast.LENGTH_SHORT)
-                            .show();
+                    handler.showPermissionMessage(this);
+//                    Toast.makeText(this, R.string.location_permission_not_given_message, Toast.LENGTH_SHORT)
+//                            .show();
                 }
                 break;
             default:
@@ -187,21 +167,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Get location
-    public void getLocation() {
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{
-                                Manifest.permission.ACCESS_FINE_LOCATION},
-                        REQUEST_CODE_ASK_PERMISSIONS);
-            }
-        }
-        else {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-            loadPostView();
-        }
-    }
+//    public void getLocation() {
+//        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                requestPermissions(new String[]{
+//                                Manifest.permission.ACCESS_FINE_LOCATION},
+//                        REQUEST_CODE_ASK_PERMISSIONS);
+//            }
+//        }
+//        else {
+//            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+//            loadPostView();
+//        }
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -310,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
 
             switch (item.getItemId()) {
                 case R.id.nav_post:
-                    if(hasAccessToLocation)
+//                    if(handler.isHasAccessToLocation())
                         loadPostView();
                     return true;
                 case R.id.nav_statistics:
