@@ -1,26 +1,10 @@
 package com.uniovi.foxvid.vista;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceManager;
-import androidx.preference.SeekBarPreference;
-
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,55 +13,39 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.firebase.auth.FirebaseAuth;
-
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-
+import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
+import com.uniovi.foxvid.LocationHandler;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.SettingsActivity;
-import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
-
 import com.uniovi.foxvid.vista.fragment.NewsFragment;
 import com.uniovi.foxvid.vista.fragment.PostFragment;
 import com.uniovi.foxvid.vista.fragment.StatisticsFragment;
 import com.uniovi.foxvid.vista.igu.CircleTransform;
 
-
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends AppCompatActivity {
 
     //get access to location permission
-    final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    boolean hasAccessToLocation = false;
+    private final int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
-    private Button btLogOut;
-
-    private List<Post> listPost;
-    private Toolbar toolbar;
     private ImageButton btProfile;
     private ImageButton btSettings;
-    private FirebaseAuth mAuth;
 
     private User user;
-    Dialog customDialog = null;
+    private Dialog customDialog = null;
 
 
-    //////// ALfonso //////
-    private LocationCallback locationCallback;
-    private LocationRequest locationRequest;
-    private FusedLocationProviderClient fusedLocationClient;
+    LocationHandler handler = LocationHandler.getLocationHandler();
 
 
     @Override
@@ -120,70 +88,39 @@ public class MainActivity extends AppCompatActivity {
         );
 
 
-        //Metodo que carga los posts si se dan permisos de ubicacion
-        hasAccessToLocation = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-
-
-
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        locationRequest = new LocationRequest();
-        locationCallback = new LocationCallback() {
+        LocationCallback locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
+                if (locationResult != null) {
+                    loadPostView();
                 }
+                else
+                    return;
             }
         };
 
-        getLocation();
+        handler.askForPermissions(this, locationCallback);
     }
-
 
     @Override
     protected void onPause() {
         super.onPause();
-        stopLocationUpdates();
-    }
-
-    private void stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback);
+        handler.stopLocationUpdates();
     }
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE_ASK_PERMISSIONS:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    hasAccessToLocation=true;
-                    getLocation();
-                } else {
-                    // Permission Denied
-                    Toast.makeText(this, R.string.location_permission_not_given_message, Toast.LENGTH_SHORT)
-                            .show();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
-
-    //Get location
-    public void getLocation() {
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{
-                                Manifest.permission.ACCESS_FINE_LOCATION},
-                        REQUEST_CODE_ASK_PERMISSIONS);
+    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE_ASK_PERMISSIONS) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                handler.setHasAccessToLocation(true);
+                handler.getLocation(this);
+            } else {
+                // Permission Denied
+                handler.showPermissionMessage(this);
             }
-        }
-        else {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-            loadPostView();
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
@@ -199,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if(id==R.id.settings){
+        if (id == R.id.settings) {
             Intent intentSettings = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intentSettings);
 
@@ -208,30 +145,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void openPopUpWindow(){
+
+    private void openPopUpWindow() {
         customDialog = new Dialog(this);
         customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         customDialog.setCancelable(true);
         customDialog.setContentView(R.layout.fragment_log_out);
-        customDialog.getWindow().setLayout(1050,600);
+        customDialog.getWindow().setLayout(1050, 600);
 
         TextView titulo = (TextView) customDialog.findViewById(R.id.txtUserDialog);
         ImageView imagenUser = (ImageView) customDialog.findViewById(R.id.idImgUserDialog);
 
-        if(user!=null){
+        if (user != null) {
             Picasso.get().load(user.getPhoto()).fit().into(imagenUser);
             titulo.setText(user.getName());
-        }
-
-        else
+        } else
             titulo.setText("Usuario");
 
 
         ((Button) customDialog.findViewById(R.id.btnLogOut)).setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 logOut();
 
             }
@@ -285,17 +220,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
+        @SuppressLint("NonConstantResourceId")
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
             switch (item.getItemId()) {
                 case R.id.nav_post:
-                    if(hasAccessToLocation)
-                        loadPostView();
+                    loadPostView();
                     return true;
                 case R.id.nav_statistics:
                     loadStatistics();

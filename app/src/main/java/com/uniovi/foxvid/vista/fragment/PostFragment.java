@@ -1,7 +1,6 @@
 package com.uniovi.foxvid.vista.fragment;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +13,12 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,17 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -53,13 +48,12 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.squareup.picasso.Picasso;
 import com.uniovi.foxvid.ListaPostAdapter;
+import com.uniovi.foxvid.LocationHandler;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Coordinate;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
-import com.uniovi.foxvid.vista.MainActivity;
 import com.uniovi.foxvid.vista.NewPostActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -69,24 +63,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Double.*;
+import static java.lang.Double.valueOf;
 
 
 public class PostFragment extends Fragment {
 
-    public static final String POSTS = "posts";
-    public static final String MAIN = "main";
-    public static final int MAX_NUMBER_OF_INTENTES = 3;
+    private static final int MIN_DISTANCE=10;
 
     private List<Post> listPost;
-    private Coordinate coordinate;
-    private Coordinate beforeCoordinate;
-    private int numeroDeIntentosCordenados;
-    public int distancia;
+
+    public int distancia=MIN_DISTANCE;
     private ListaPostAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private Dialog customDialog;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private int numOfPost = -1;
     private boolean cargando = false;
 
@@ -99,41 +88,22 @@ public class PostFragment extends Fragment {
     // Layout de refresco
     private SwipeRefreshLayout swipeRefreshLayout;
 
+
+    LocationHandler handler = LocationHandler.getLocationHandler();
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
-
-        coordinate = new Coordinate(0.0, 0.0);
-        beforeCoordinate = new Coordinate(0.0, 0.0);
-        numeroDeIntentosCordenados = 0;
-
         root = inflater.inflate(R.layout.fragment_post, container, false);
 
-        if (listPost == null) listPost = new ArrayList<Post>();
+        if (listPost == null) listPost = new ArrayList<>();
 
         listPostView = (RecyclerView) root.findViewById(R.id.idRvPost);
         swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipeRefreshLayout);
 
-       /* listPostView.addOnScrollListener(new RecyclerView.OnScrollListener()
-        {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
-            {
-                if(dy > 0) //check for scroll down
-                {
-                    if(!cargando){
-                        numOfPost += 5;
-                        cargando = true;
-                        //System.out.println("Tamos en las ultimas");
-                        cargarPost();
-                    }
-
-                }
-            }
-        });*/
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -163,7 +133,8 @@ public class PostFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        numeroDeIntentosCordenados = 0;
+        handler.reset();
+        //numeroDeIntentosCordenados = 0;
         cargarPost();
     }
 
@@ -173,36 +144,23 @@ public class PostFragment extends Fragment {
      */
     public void cargarPost() {
         SharedPreferences sharedPreferencesMainRecycler = PreferenceManager.getDefaultSharedPreferences(getContext());
-        distancia = sharedPreferencesMainRecycler.getInt("Key_Seek_KM", 0);
+        distancia = sharedPreferencesMainRecycler.getInt("Key_Seek_KM", MIN_DISTANCE);
 
         OnSuccessListener<Location> listener = new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
                 // Got last known location. In some rare situations this can be null.
                 if (location != null) {
-                    coordinate.setLat(location.getLatitude());
-                    coordinate.setLon(location.getLongitude());
-                    beforeCoordinate.setLat(location.getLatitude());
-                    beforeCoordinate.setLon(location.getLongitude());
-                    numeroDeIntentosCordenados = 0;
                     loadPost();
-                } else {
-                    if (beforeCoordinate.getLon() == 0 && beforeCoordinate.getLat() == 0 && numeroDeIntentosCordenados < MAX_NUMBER_OF_INTENTES) {
-                        preguntarPorUbicacion();
-                        numeroDeIntentosCordenados++;
-                    } else {
-                        coordinate.setLat(beforeCoordinate.getLat());
-                        coordinate.setLon(beforeCoordinate.getLon());
-                        loadPost();
-                    }
-
                 }
             }
         };
 
         swipeRefreshLayout.setRefreshing(false);
         cargando = false;
-        updateLocate(listener);
+
+        handler.updateLocate(getActivity(), listener);
+
     }
 
     protected void loadPost() {
@@ -244,22 +202,18 @@ public class PostFragment extends Fragment {
 
     /**
      * Método que recorre los posts de la base de datos y los añade a la lista de post
-     * @param snapshots
+     * @param snapshots respuesta de la query ejecutada, de tipo QuerySnapshot
      */
     private void addPost(QuerySnapshot snapshots){
         for (DocumentChange dc : snapshots.getDocumentChanges()) {
-            switch (dc.getType()) {
-                case ADDED:
-                    if(!checkPost(dc)) return;
-                    break;
-                default:
-                    break;
+            if (dc.getType() == DocumentChange.Type.ADDED) {
+                if (!checkPost(dc)) return;
             }
         }
     }
 
     private boolean checkPost(DocumentChange dc){
-        if (checkDistancia(dc)) {
+        if (handler.checkDistancia(dc, distancia)) {
             boolean existe = false;
             for (Post p : listPost) {
                 if (p.getUuid().equals(dc.getDocument().get("uid")))
@@ -287,51 +241,6 @@ public class PostFragment extends Fragment {
                 0);
     }
 
-    private boolean checkDistancia(DocumentChange dc){
-        return coordinate.checkDistancia(Double.valueOf(dc.getDocument().get("lat").toString()),
-                Double.valueOf(dc.getDocument().get("lon").toString()), distancia);
-    }
-
-    /**
-     * Método que obtiene la última localización conocida del usuario.
-     * Si no tiene los permisos necesarios, le muestra un mensaje para poder darlos.
-     * @param listener, listener con la funcionalidad que se espera al obtener la última ubicación del usuario
-     */
-    private void updateLocate(OnSuccessListener<Location> listener) {
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        if (ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        fusedLocationClient.getLastLocation().addOnSuccessListener(getActivity(), listener);
-
-    }
-
-    /**
-     * Método que carga un mensaje de diálogo en caso de que la ubicación no esté activada.
-     */
-    private void preguntarPorUbicacion() {
-        if (numeroDeIntentosCordenados == 0) {
-            customDialog = new Dialog(getContext());
-            customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            customDialog.setCancelable(true);
-            customDialog.setContentView(R.layout.fragment_location);
-            customDialog.getWindow().setLayout(1070, 850);
-
-
-            ((Button) customDialog.findViewById(R.id.btLocation)).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    customDialog.cancel();
-                    numeroDeIntentosCordenados = -2;
-                    cargarPost();
-
-                }
-            });
-
-            customDialog.show();
-        }
-    }
 
 
     /**
