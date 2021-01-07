@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -79,12 +80,13 @@ public class LocationHandler {
                         Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             //En caso de que no se hayan concedido los permisos, pedir al usuario que los active
+            Log.d("LocationHandler", "UpdateLocate");
             showPermissionMessage(activity);
 
 
         }
         else {
-
+            Log.d("LocationHandler", "Success");
             OnSuccessListener<Location> listener = new OnSuccessListener<Location>() {
                 @Override
                 public void onSuccess(Location location) {
@@ -108,19 +110,21 @@ public class LocationHandler {
                     }
                 }
             };
-            if(activityListener!=null)
+            if(activityListener!=null) {
                 fusedLocationClient.getLastLocation().addOnSuccessListener(activity, listener).addOnSuccessListener(activityListener);
+            }
             else
                 fusedLocationClient.getLastLocation().addOnSuccessListener(activity, listener);
         }
 
     }
 
-    public void showPermissionMessage(final Activity activity) {
+    public void showPermissionMessage(Activity activity) {
+        callingActivity=activity;
         showSnackbar(activity, new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                ActivityCompat.requestPermissions( activity,
+                ActivityCompat.requestPermissions( callingActivity,
                         new String[]{ACCESS_FINE_LOCATION},
                         REQUEST_PERMISSIONS_REQUEST_CODE);
             }
@@ -220,10 +224,6 @@ public class LocationHandler {
     public void stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
-
-//    public boolean isHasAccessToLocation(){
-//        return hasAccessToLocation;
-//    }
 
     public void setHasAccessToLocation(boolean b) {
         this.hasAccessToLocation=b;

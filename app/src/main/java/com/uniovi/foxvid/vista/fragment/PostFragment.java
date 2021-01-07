@@ -68,10 +68,11 @@ import static java.lang.Double.valueOf;
 
 public class PostFragment extends Fragment {
 
+    private static final int MIN_DISTANCE=10;
 
     private List<Post> listPost;
 
-    public int distancia=10;
+    public int distancia=MIN_DISTANCE;
     private ListaPostAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -143,7 +144,7 @@ public class PostFragment extends Fragment {
      */
     public void cargarPost() {
         SharedPreferences sharedPreferencesMainRecycler = PreferenceManager.getDefaultSharedPreferences(getContext());
-        distancia = sharedPreferencesMainRecycler.getInt("Key_Seek_KM", 0);
+        distancia = sharedPreferencesMainRecycler.getInt("Key_Seek_KM", MIN_DISTANCE);
 
         OnSuccessListener<Location> listener = new OnSuccessListener<Location>() {
             @Override
