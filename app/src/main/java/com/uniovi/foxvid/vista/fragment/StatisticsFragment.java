@@ -1,72 +1,40 @@
 package com.uniovi.foxvid.vista.fragment;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
-import com.uniovi.foxvid.ListaPostAdapter;
 import com.uniovi.foxvid.LocationHandler;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Coordinate;
-import com.uniovi.foxvid.modelo.Post;
-import com.uniovi.foxvid.modelo.User;
 
-import org.json.JSONException;
-
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.uniovi.foxvid.BuildConfig.APPLICATION_ID;
-
 public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
 
-    private View root;
     SupportMapFragment mapFragment;
     private GoogleMap mMap;
     LatLng centro;
@@ -80,7 +48,7 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        root = inflater.inflate(R.layout.fragment_statistics, container, false);
+        View root = inflater.inflate(R.layout.fragment_statistics, container, false);
 
         initMap();
 
@@ -154,8 +122,8 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
                                 //Se añaden las coordenadas a una lista
                                 latLngs.add(
                                         new LatLng(
-                                                new Double(document.getData().get("lat").toString()),
-                                                new Double(document.getData().get("lon").toString())
+                                                Double.parseDouble(document.getData().get("lat").toString()),
+                                                Double.parseDouble(document.getData().get("lon").toString())
                                         )
                                 );
                             }
@@ -165,7 +133,7 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
                                     .build();
 
                             //Se añade la capa al mapa
-                            TileOverlay overlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+                            mMap.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
                         } else {
                             Log.d("PostsMapa", "Error getting documents: ", task.getException());
                         }

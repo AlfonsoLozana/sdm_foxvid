@@ -71,7 +71,7 @@ public class PostFragment extends Fragment {
 
     private List<Post> listPost;
 
-    public int distancia;
+    public int distancia=10;
     private ListaPostAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();

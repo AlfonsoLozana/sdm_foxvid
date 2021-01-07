@@ -1,26 +1,15 @@
 package com.uniovi.foxvid.vista;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.location.Location;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.TextView;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -30,21 +19,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.uniovi.foxvid.LocationHandler;
 import com.uniovi.foxvid.R;
-import com.uniovi.foxvid.modelo.Coordinate;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-
 public class NewPostActivity extends AppCompatActivity {
 
-    private int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
-
     private TextView txtPost;
-
-    private Toolbar toolbar;
 
     LocationHandler handler = LocationHandler.getLocationHandler();
 
@@ -55,7 +37,7 @@ public class NewPostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_post);
 
 
-        toolbar = findViewById(R.id.new_post_toolbar);
+        Toolbar toolbar = findViewById(R.id.new_post_toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -74,6 +56,7 @@ public class NewPostActivity extends AppCompatActivity {
     }
 
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
@@ -98,7 +81,7 @@ public class NewPostActivity extends AppCompatActivity {
         //Si no se ha escrito nada
         if (txtPost.getText().toString().isEmpty()) {
             System.out.println("Debug: todo mal");
-            showSnackbar(R.string.post_text_empty, 0, null);
+            showSnackbar(R.string.post_text_empty);
         }
         //Si la localización delusuario no se ha obtenido correctamente
         else if (handler.getUserCoordinate().getLat().isNaN() || handler.getUserCoordinate().getLat().isInfinite() || handler.getUserCoordinate().getLat() == 0) {
@@ -131,13 +114,13 @@ public class NewPostActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            showSnackbar(R.string.successful_post_upload, 0, null);
+                            showSnackbar(R.string.successful_post_upload);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            showSnackbar(R.string.failure_post_upload, 0, null);
+                            showSnackbar(R.string.failure_post_upload);
 
                         }
                     });
@@ -148,18 +131,14 @@ public class NewPostActivity extends AppCompatActivity {
     /**
      * Método que muestra un snackbar con un mensaje que se le pasa por parámetro,
      * además también se le puede asignar una texto y un listener para el botón de acción.
+     *
      * @param snackStrId, id de la cadena que se desea mostrar, de tipo int
-     * @param actionStrId, id de la cadena del botón que ejecuta la acción del listener, de tipo int
-     * @param listener, listener con la funcionalidad del botón, de tipo View.OnClickListener
      */
-    private void showSnackbar(int snackStrId, int actionStrId, View.OnClickListener listener) {
+    private void showSnackbar(int snackStrId) {
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),
                 getString(snackStrId),
                 BaseTransientBottomBar.LENGTH_INDEFINITE);
 
-        if (actionStrId != 0 && listener != null) {
-            snackbar.setAction(getString(actionStrId), listener);
-        }
 
         snackbar.show();
     }
