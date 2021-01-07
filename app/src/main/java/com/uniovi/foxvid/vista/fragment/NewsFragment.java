@@ -32,8 +32,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import java.io.StringReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -132,6 +136,7 @@ public class NewsFragment extends Fragment {
     private List<News> parseXML(String xml){
         NodeList nl = null;
         List<News> news = new ArrayList<News>();
+        DateFormat dateFormatterRssPubDate = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
         try {
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -152,7 +157,8 @@ public class NewsFragment extends Fragment {
                     String content[] = eElement.getElementsByTagName("description").item(0).getChildNodes().item(0).getTextContent().split("src=\"")[1].split("\">");
                     String img = content[0];
                     String description = content[1].substring(0,150) + "...";
-                    news.add(new News(title,description,URL,img));
+                    Date date = dateFormatterRssPubDate.parse(eElement.getElementsByTagName("pubDate").item(0).getTextContent());
+                    news.add(new News(title,description,URL,img,date));
                 }
             }
         } catch (Exception e) {

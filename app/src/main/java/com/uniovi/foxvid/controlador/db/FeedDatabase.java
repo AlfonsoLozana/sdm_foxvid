@@ -11,6 +11,7 @@ import com.uniovi.foxvid.modelo.News;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,9 +23,10 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     private static final int COLUMN_DESC = 2;
     private static final int COLUMN_URL = 3;
     private static final int COLUMN_URL_MINIATURA = 4;
+    private static final int COLUMN_FECHA = 5;
 
     // Número de noticias mostradas
-    private static  final int NUM_NEWS = 15;
+    private static  final int NUM_NEWS = 20;
 
     /*
     Instancia singleton
@@ -96,7 +98,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
         // Seleccionamos todas las filas de la tabla 'entrada'
         return getWritableDatabase().rawQuery(
                 "select * from " + ScriptDatabase.ENTRADA_TABLE_NAME +
-                        " ORDER BY _id DESC", null);
+                        " ORDER BY date DESC", null);
     }
 
     public List<News> getNews() {
@@ -105,6 +107,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
         String descripcion;
         String url;
         String urlImage;
+        Date date;
         List<News> salida = new ArrayList<News>();
         Cursor c = obtenerEntradas();
         while (c.moveToNext()) {
@@ -113,7 +116,8 @@ public final class FeedDatabase extends SQLiteOpenHelper {
             descripcion = c.getString(COLUMN_DESC);
             url = c.getString(COLUMN_URL);
             urlImage = c.getString(COLUMN_URL_MINIATURA);
-            salida.add(new News(titulo, descripcion, url, urlImage));
+            date = new Date(c.getLong(COLUMN_FECHA));
+            salida.add(new News(titulo, descripcion, url, urlImage,date));
         }
 
         return salida;
@@ -131,13 +135,14 @@ public final class FeedDatabase extends SQLiteOpenHelper {
             String titulo,
             String descripcion,
             String url,
-            String url_miniatura) {
+            String url_miniatura, Date date) {
 
         ContentValues values = new ContentValues();
         values.put(ScriptDatabase.ColumnEntradas.TITULO, titulo);
         values.put(ScriptDatabase.ColumnEntradas.DESCRIPCION, descripcion);
         values.put(ScriptDatabase.ColumnEntradas.URL, url);
         values.put(ScriptDatabase.ColumnEntradas.URL_MINIATURA, url_miniatura);
+        values.put(ScriptDatabase.ColumnEntradas.FECHA, date.getTime());
 
         // Insertando el registro en la base de datos
         getWritableDatabase().insert(
@@ -165,16 +170,21 @@ public final class FeedDatabase extends SQLiteOpenHelper {
         comparación con las locales
     */
         HashMap<String, News> entryMap = new HashMap<String, News>();
+
         for (News e : entries) {
             /*
             #3.1 Comprobar que las noticias tienen que ver con el COVID
             */
             if(comprobarKeyWords(e.getTitle())){
                 entryMap.put(e.getTitle(), e);
+                Log.i(TAG, "Se ha añadido " + e.getTitle());
             }else if (comprobarKeyWords(e.getSummary())){
                 entryMap.put(e.getTitle(), e);
+                Log.i(TAG, "Se ha añadido " + e.getTitle());
             }
         }
+
+        Log.i(TAG, "Se encontraron " + entryMap.size() + " nuevas entradas, computando...");
 
     /*
     #2  Obtener las entradas locales
@@ -199,9 +209,12 @@ public final class FeedDatabase extends SQLiteOpenHelper {
             descripcion = c.getString(COLUMN_DESC);
             url = c.getString(COLUMN_URL);
 
+            Log.i(TAG, "Titulo:" + titulo);
+            Log.i(TAG, "Date:" + new Date(c.getLong(COLUMN_FECHA)));
             News match = entryMap.get(titulo);
             if (match != null) {
                 // Filtrar entradas existentes. Remover para prevenir futura inserción
+                Log.i(TAG, "Borramos entrada con el titulo:" + titulo);
                 entryMap.remove(titulo);
             }
         }
@@ -230,7 +243,8 @@ public final class FeedDatabase extends SQLiteOpenHelper {
                     e.getTitle(),
                     e.getSummary(),
                     e.getUrlNews(),
-                    e.getImage()
+                    e.getImage(),
+                    e.getDate()
             );
         }
 
@@ -239,7 +253,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
 
     private boolean comprobarKeyWords(String text){
         for(String key:keyword){
-            if(text.contains(key)){
+            if(text.toLowerCase().contains(key)){
                 return true;
             }
         }
