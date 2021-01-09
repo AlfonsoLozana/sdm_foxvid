@@ -106,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         handler.stopLocationUpdates();
+        if(customDialog!=null)
+            customDialog.dismiss();
     }
 
 
@@ -167,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
+                customDialog.dismiss();
                 logOut();
 
             }
@@ -175,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         ((Button) customDialog.findViewById(R.id.cancelar)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                customDialog.cancel();
+                customDialog.dismiss();
             }
         });
 
@@ -209,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void logOut() {
+
         FirebaseAuth.getInstance().signOut();
         loadLogActivity();
     }

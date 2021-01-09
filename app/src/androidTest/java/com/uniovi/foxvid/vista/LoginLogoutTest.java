@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.test.espresso.ViewInteraction;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
@@ -36,7 +37,7 @@ import static org.hamcrest.Matchers.is;
 public class LoginLogoutTest {
 
     @Rule
-    public ActivityTestRule<Login> mActivityTestRule = new ActivityTestRule<>(Login.class);
+    public ActivityScenarioRule<Login> mActivityTestRule = new ActivityScenarioRule<>(Login.class);
 
     @Rule
     public GrantPermissionRule mGrantPermissionRule =
