@@ -217,7 +217,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
         while (c.moveToNext()) {
             titulo = c.getString(COLUMN_TITULO);
 
-            News match = entryMap.get(titulo);
+            News match = entryMap.get(titulo.toLowerCase());
             if (match != null) {
                 // Filtrar entradas existentes. Remover para prevenir futura inserción
                 Log.i(TAG, "La notica con titulo \"" + titulo + "\" ya existe en la base de datos");
