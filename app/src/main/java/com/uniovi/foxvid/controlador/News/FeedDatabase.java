@@ -221,7 +221,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
             if (match != null) {
                 // Filtrar entradas existentes. Remover para prevenir futura inserción
                 Log.i(TAG, "La notica con titulo \"" + titulo + "\" ya existe en la base de datos");
-                entryMap.remove(titulo);
+                entryMap.remove(titulo.toLowerCase());
             }
         }
         /*
