@@ -1,4 +1,4 @@
-package com.uniovi.foxvid.controlador.db;
+package com.uniovi.foxvid.controlador.News;
 
 import android.provider.BaseColumns;
 

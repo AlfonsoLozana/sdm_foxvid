@@ -1,4 +1,4 @@
-package com.uniovi.foxvid.controlador.db;
+package com.uniovi.foxvid.controlador.News;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,7 +9,6 @@ import android.util.Log;
 
 import com.uniovi.foxvid.modelo.News;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     private static final int COLUMN_FECHA = 5;
 
     // Número de noticias mostradas
-    private static  final int NUM_NEWS = 20;
+    private static final int NUM_NEWS = 20;
 
     /*
     Instancia singleton
@@ -49,9 +48,9 @@ public final class FeedDatabase extends SQLiteOpenHelper {
      */
     public static final int DATABASE_VERSION = 1;
 
-     //Array que contiene las palabras que debe contener una publicación para determinar que una
+    //Array que contiene las palabras que debe contener una publicación para determinar que una
     // noticia esta relaccionada con el covid
-    public static final String[] keyword = {"covid","sars","vacuna","mascarilla","coronavirus"};
+    public static final String[] keyword = {"covid", "sars", "vacuna", "mascarilla", "coronavirus"};
 
     private FeedDatabase(Context context) {
         super(context,
@@ -82,6 +81,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
 
     }
 
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Añade los cambios que se realizarán en el esquema
@@ -90,9 +90,10 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     }
 
     /**
-     * Obtiene todos los registros de la tabla entrada
+     * Método que devuelve todos las noticias guardadas en la base de datos
+     * ordenadas por fecha
      *
-     * @return cursor con los registros
+     * @return cursor con las noticias
      */
     public Cursor obtenerEntradas() {
         // Seleccionamos todas las filas de la tabla 'entrada'
@@ -101,6 +102,11 @@ public final class FeedDatabase extends SQLiteOpenHelper {
                         " ORDER BY date DESC", null);
     }
 
+    /**
+     * Devuelve una lista de todas las noticias que hay en la base de datos
+     *
+     * @return salida, lista con las noticias
+     */
     public List<News> getNews() {
         int id;
         String titulo;
@@ -117,19 +123,20 @@ public final class FeedDatabase extends SQLiteOpenHelper {
             url = c.getString(COLUMN_URL);
             urlImage = c.getString(COLUMN_URL_MINIATURA);
             date = new Date(c.getLong(COLUMN_FECHA));
-            salida.add(new News(titulo, descripcion, url, urlImage,date));
+            salida.add(new News(titulo, descripcion, url, urlImage, date));
         }
 
         return salida;
     }
 
     /**
-     * Inserta un registro en la tabla entrada
+     * Inserta una noticia en la base de datos
      *
-     * @param titulo        titulo de la entrada
-     * @param descripcion   desripcion de la entrada
-     * @param url           url del articulo
-     * @param url_miniatura url de la miniatura
+     * @param titulo        titulo de la noticia
+     * @param descripcion   desripcion de la noticia
+     * @param url           url del noticai
+     * @param url_miniatura url de la noticia
+     * @param date          fecha de la noticia
      */
     public void insertarEntrada(
             String titulo,
@@ -152,16 +159,22 @@ public final class FeedDatabase extends SQLiteOpenHelper {
         );
     }
 
-    private void borrarEntrada(String titulo){
-        System.out.println("Debug: número de noticia borrada: " + titulo );
+    /**
+     * Borrar una noticia de la base de datos comprarando por titulo
+     *
+     * @param titulo
+     */
+    private void borrarEntradaTitulo(String titulo) {
+        Log.i(TAG, "Borramos la noticia con el titulo:" + titulo);
         getWritableDatabase().delete(ScriptDatabase.ENTRADA_TABLE_NAME, "titulo = " + "\"" + titulo + "\"", null);
     }
 
+
     /**
-     * Procesa una lista de items para su almacenamiento local
+     * Procesa una lista de noticias para su almacenamiento local
      * y sincronización.
      *
-     * @param entries lista de items
+     * @param entries lista de noticias
      */
     public void sincronizarEntradas(List<News> entries) {
 
@@ -171,15 +184,16 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     */
         HashMap<String, News> entryMap = new HashMap<String, News>();
 
+        Log.i(TAG, "1#. Mapeamos las nuevas noticias");
         for (News e : entries) {
             /*
             #3.1 Comprobar que las noticias tienen que ver con el COVID
             */
-            if(comprobarKeyWords(e.getTitle())){
-                entryMap.put(e.getTitle(), e);
+            if (comprobarKeyWords(e.getTitle())) {
+                entryMap.put(e.getTitle().toLowerCase(), e);
                 Log.i(TAG, "Se ha añadido " + e.getTitle());
-            }else if (comprobarKeyWords(e.getSummary())){
-                entryMap.put(e.getTitle(), e);
+            } else if (comprobarKeyWords(e.getSummary())) {
+                entryMap.put(e.getTitle().toLowerCase(), e);
                 Log.i(TAG, "Se ha añadido " + e.getTitle());
             }
         }
@@ -189,7 +203,7 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     /*
     #2  Obtener las entradas locales
      */
-        Log.i(TAG, "Consultar items actualmente almacenados");
+        Log.i(TAG, "2#. Consultar noticias actualmente almacenadas");
         Cursor c = obtenerEntradas();
         assert c != null;
         Log.i(TAG, "Se encontraron " + c.getCount() + " entradas, computando...");
@@ -197,63 +211,55 @@ public final class FeedDatabase extends SQLiteOpenHelper {
     /*
     #3  Comenzar a comparar las entradas
      */
-        int id;
+
+        Log.i(TAG, "#3. Comenzamos a comparar entradas");
         String titulo;
-        String descripcion;
-        String url;
-        String urlImage;
-
         while (c.moveToNext()) {
-            id = c.getInt(COLUMN_ID);
             titulo = c.getString(COLUMN_TITULO);
-            descripcion = c.getString(COLUMN_DESC);
-            url = c.getString(COLUMN_URL);
 
-            Log.i(TAG, "Titulo:" + titulo);
-            Log.i(TAG, "Date:" + new Date(c.getLong(COLUMN_FECHA)));
             News match = entryMap.get(titulo);
             if (match != null) {
                 // Filtrar entradas existentes. Remover para prevenir futura inserción
-                Log.i(TAG, "Borramos entrada con el titulo:" + titulo);
+                Log.i(TAG, "La notica con titulo \"" + titulo + "\" ya existe en la base de datos");
                 entryMap.remove(titulo);
             }
         }
-
+        /*
+        #4 Comprobamos que el número de noticias no es mayor que NUM_NEWS, en caso de exceder este número
+            se eliminan aquellas noticias que son mas antiguas
+         */
+        Log.i(TAG, "#4. Comprobamos el numero de noticias");
         int numberOfNews = 0;
         c = obtenerEntradas();
-        System.out.println("Debug: número de noticias: " + entryMap.size() );
+        Log.i(TAG," Número de nuevas noticias: " + entryMap.size());
         while (c.moveToNext()) {
-            System.out.println("Debug: id: " +c.getColumnName(COLUMN_ID) );
-            if(entryMap.size() +  numberOfNews >= NUM_NEWS){
-                    System.out.println("Debug: Entrar entro");
-                    borrarEntrada(c.getString(COLUMN_TITULO));
+            if (entryMap.size() + numberOfNews >= NUM_NEWS) {
+                borrarEntradaTitulo(c.getString(COLUMN_TITULO));
             }
-            numberOfNews ++;
-            System.out.println("Debug: número de noticias recorridas: " + numberOfNews );
+            numberOfNews++;
         }
         c.close();
 
     /*
-    #4 Añadir entradas nuevas
+    #5 Añadir entradas nuevas
     */
+        Log.i(TAG, "#5. Añadimos las nuevas entradas a la base de datos");
         for (News e : entryMap.values()) {
-
-            Log.i(TAG, "Insertado: titulo=" + e.getTitle());
-            insertarEntrada(
-                    e.getTitle(),
-                    e.getSummary(),
-                    e.getUrlNews(),
-                    e.getImage(),
-                    e.getDate()
-            );
+            Log.i(TAG, "Insertado noticia con titulo=" + e.getTitle());
+            insertarEntrada(e.getTitle(), e.getSummary(), e.getUrlNews(), e.getImage(), e.getDate());
         }
-
-
     }
 
-    private boolean comprobarKeyWords(String text){
-        for(String key:keyword){
-            if(text.toLowerCase().contains(key)){
+    /**
+     * Método que comprueba que el texto pasado como parámetro contiene al menos una de las palabras
+     * de la lista "keywords".
+     *
+     * @param text
+     * @return
+     */
+    private boolean comprobarKeyWords(String text) {
+        for (String key : keyword) {
+            if (text.toLowerCase().contains(key)) {
                 return true;
             }
         }
