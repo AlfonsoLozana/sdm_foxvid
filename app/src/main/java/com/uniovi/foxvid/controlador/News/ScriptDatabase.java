@@ -1,4 +1,4 @@
-package com.uniovi.foxvid.controlador.db;
+package com.uniovi.foxvid.controlador.News;
 
 import android.provider.BaseColumns;
 
@@ -12,6 +12,7 @@ public class ScriptDatabase {
     public static final String ENTRADA_TABLE_NAME = "NEWS";
     public static final String STRING_TYPE = "TEXT";
     public static final String INT_TYPE = "INTEGER";
+    public static final String LONG_TYPE = "LONG";
 
     // Campos de la tabla entrada
     public static class ColumnEntradas {
@@ -20,6 +21,7 @@ public class ScriptDatabase {
         public static final String DESCRIPCION = "descripcion";
         public static final String URL = "url";
         public static final String URL_MINIATURA = "url_miniatura";
+        public static final String FECHA = "date";
     }
 
     // Comando CREATE para la tabla ENTRADA
@@ -29,7 +31,8 @@ public class ScriptDatabase {
                     ColumnEntradas.TITULO + " " + STRING_TYPE + " not null," +
                     ColumnEntradas.DESCRIPCION + " " + STRING_TYPE + "," +
                     ColumnEntradas.URL + " " + STRING_TYPE + "," +
-                    ColumnEntradas.URL_MINIATURA + " " + STRING_TYPE +")";
+                    ColumnEntradas.URL_MINIATURA + " " + STRING_TYPE + "," +
+                    ColumnEntradas.FECHA + " " + LONG_TYPE +")";
 
 
 

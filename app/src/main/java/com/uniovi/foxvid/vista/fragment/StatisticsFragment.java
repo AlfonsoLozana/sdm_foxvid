@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -19,6 +20,7 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -127,13 +129,17 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
                                         )
                                 );
                             }
-                            //Se crea el proveedor de la capa con las coordenadas obtenidas
-                            HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
-                                    .data(latLngs)
-                                    .build();
+                            if(latLngs.size() > 0) {
+                                //Se crea el proveedor de la capa con las coordenadas obtenidas
+                                HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
+                                        .data(latLngs)
+                                        .build();
 
-                            //Se añade la capa al mapa
-                            mMap.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+                                //Se añade la capa al mapa
+                                mMap.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+                            }else{
+                                Toast.makeText(getContext(), R.string.error_mapa, Toast.LENGTH_LONG).show();
+                            }
                         } else {
                             Log.d("PostsMapa", "Error getting documents: ", task.getException());
                         }

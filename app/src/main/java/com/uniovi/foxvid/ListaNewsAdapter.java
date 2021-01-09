@@ -70,6 +70,7 @@ public class ListaNewsAdapter extends RecyclerView.Adapter<ListaNewsAdapter.News
             private ImageView imgNews;
             private TextView txtTitle;
             private TextView txtSummary;
+            private TextView txtDate;
 
             public NewsViewHolder(View itemView) {
                 super(itemView);
@@ -77,6 +78,7 @@ public class ListaNewsAdapter extends RecyclerView.Adapter<ListaNewsAdapter.News
                 imgNews = itemView.findViewById(R.id.imgNews);
                 txtSummary = itemView.findViewById(R.id.txtSummaryNews);
                 txtTitle = itemView.findViewById(R.id.txtTitleNews);
+                txtDate = itemView.findViewById(R.id.idDate);
 
             }
 
@@ -84,6 +86,7 @@ public class ListaNewsAdapter extends RecyclerView.Adapter<ListaNewsAdapter.News
             public void bindUser(final News news, final OnItemClickListener listener) {
                 txtSummary.setText(news.getSummary());
                 txtTitle.setText(news.getTitle());
+                txtDate.setText("Hace " + getTime(news.getDate()));
 
                 if(news.getImage()!=null && !news.getImage().isEmpty())
                     Picasso.get().load(news.getImage()).into(imgNews);
@@ -91,10 +94,27 @@ public class ListaNewsAdapter extends RecyclerView.Adapter<ListaNewsAdapter.News
 
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        Log.i("Hola", "Hola");
                         listener.onItemClick(news);
                     }
                 });
+            }
+
+            private String getTime(Date date) {
+                long diferencia = new Date().getTime() - date.getTime();
+                long segundos = TimeUnit.MILLISECONDS.toSeconds(diferencia);
+                if (segundos < 0) {
+                    return 0 + " segundos";
+                }else if (segundos == 1){
+                    return segundos + " segundo";
+                } else if (segundos <= 60) {
+                    return segundos + " segundos";
+                } else if (segundos <= 3600)
+                    return TimeUnit.MILLISECONDS.toMinutes(diferencia) + " minuto" + ((TimeUnit.MILLISECONDS.toMinutes(diferencia)==1)?"" :"s");
+                else if (segundos <= 86400)
+                    return TimeUnit.MILLISECONDS.toHours(diferencia) + " hora" + ((TimeUnit.MILLISECONDS.toHours(diferencia)==1)?"" :"s");
+                else
+                    return TimeUnit.MILLISECONDS.toDays(diferencia) + " dia" + ((TimeUnit.MILLISECONDS.toDays(diferencia)==1)?"" :"s");
+
             }
 
         }

@@ -7,8 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,7 +20,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.uniovi.foxvid.ListaNewsAdapter;
 import com.uniovi.foxvid.R;
-import com.uniovi.foxvid.controlador.db.FeedDatabase;
+import com.uniovi.foxvid.controlador.News.FeedDatabase;
 import com.uniovi.foxvid.modelo.News;
 
 import org.w3c.dom.Document;
@@ -32,8 +30,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import java.io.StringReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -41,11 +43,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 public class NewsFragment extends Fragment {
 
     private static final String TAG = "Error " ;
-   // private static final String URL_FEED = "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada";
-    //private static final String URL_FEED = "https://e00-elmundo.uecdn.es/elmundo/rss/espana.xml";
     private static final String URL_FEED = "https://www.abc.es/rss/feeds/abc_SociedadSalud.xml";
-    private Button btPost;
-    private TextView txtPost;
     private FeedDatabase feedDatabase;
 
     private List<News> newsList;
@@ -68,12 +66,9 @@ public class NewsFragment extends Fragment {
         newsListView.setLayoutManager(layoutManager);
 
         //Cargar ultimas noticias
-
         loadLastNews();
         return root;
     }
-
-
 
 
     /**
@@ -90,16 +85,18 @@ public class NewsFragment extends Fragment {
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
                         feedDatabase.sincronizarEntradas(parseXML(response));
+                        createAdapter();
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //textView.setText("That didn't work!");
+               Log.d(TAG,"Se a producido un error al cargar las noticias");
             }
         });
 
         queue.add(stringRequest);
         createAdapter();
+
     }
 
     /**
@@ -122,16 +119,20 @@ public class NewsFragment extends Fragment {
      */
     private void clickOnItem(News clickedNew) {
         Log.d("URLNoticia", "URL:"+clickedNew.getUrlNews());
-
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickedNew.getUrlNews()));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
 
     }
 
+    /**
+     * Parser para las noticias obtenidas del proovedor, en este caso ABC
+     * @param xml
+     * @return
+     */
     private List<News> parseXML(String xml){
-        NodeList nl = null;
         List<News> news = new ArrayList<News>();
+        DateFormat dateFormatterRssPubDate = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
         try {
             DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -152,7 +153,8 @@ public class NewsFragment extends Fragment {
                     String content[] = eElement.getElementsByTagName("description").item(0).getChildNodes().item(0).getTextContent().split("src=\"")[1].split("\">");
                     String img = content[0];
                     String description = content[1].substring(0,150) + "...";
-                    news.add(new News(title,description,URL,img));
+                    Date date = dateFormatterRssPubDate.parse(eElement.getElementsByTagName("pubDate").item(0).getTextContent());
+                    news.add(new News(title,description,URL,img,date));
                 }
             }
         } catch (Exception e) {
