@@ -4,15 +4,17 @@
     tools:context="com.uniovi.foxvid.vista.MainActivity">
     <item
         android:id="@+id/nav_post"
+        android:contentDescription="@string/nav_bar_posts"
         android:icon="@drawable/baseline_home_black_18dp"
         android:title="@string/nav_bar_posts" />
     <item
         android:id="@+id/nav_statistics"
+        android:contentDescription="@string/nav_bar_stadistics"
         android:icon="@drawable/baseline_trending_down_black_18dp"
         android:title="@string/nav_bar_stadistics" />
     <item
         android:id="@+id/nav_news"
+        android:contentDescription="@string/nav_bar_news"
         android:icon="@drawable/baseline_art_track_black_18dp"
-        android:title="@string/nav_bar_news"
-        />
+        android:title="@string/nav_bar_news" />
 </menu>

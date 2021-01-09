@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.test.espresso.ViewInteraction;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -32,6 +31,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -40,17 +40,17 @@ import static org.hamcrest.Matchers.is;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class LoginLogoutTest {
+public class MapTest {
 
     UiDevice mDevice;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
     }
 
     @Rule
-    public ActivityScenarioRule<Login> mActivityTestRule = new ActivityScenarioRule<>(Login.class);
+    public ActivityTestRule<Login> mActivityTestRule = new ActivityTestRule<>(Login.class);
 
     @Rule
     public GrantPermissionRule mGrantPermissionRule =
@@ -58,19 +58,7 @@ public class LoginLogoutTest {
                     "android.permission.ACCESS_FINE_LOCATION");
 
     @Test
-    public void loginLogoutTest() throws UiObjectNotFoundException {
-        ViewInteraction button = onView(
-                allOf(withId(R.id.btGoogle), withText("GOOGLE"),
-                        withParent(withParent(withId(R.id.idLoginLayaut))),
-                        isDisplayed()));
-        button.check(matches(isDisplayed()));
-
-        ViewInteraction button2 = onView(
-                allOf(withId(R.id.btGithub), withText("GITHUB"),
-                        withParent(withParent(withId(R.id.idLoginLayaut))),
-                        isDisplayed()));
-        button2.check(matches(isDisplayed()));
-
+    public void mapTest() throws UiObjectNotFoundException{
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.btGoogle), withText("Google"),
                         childAtPosition(
@@ -81,15 +69,25 @@ public class LoginLogoutTest {
                         isDisplayed()));
         appCompatButton.perform(click());
 
-        //Click en la cuenta de google de la ventana emergente
         UiObject mText = mDevice.findObject(new UiSelector().text("foxvidtest@gmail.com"));
         mText.click();
 
-        ViewInteraction imageButton = onView(
-                allOf(withId(R.id.btProfile),
-                        withParent(withParent(withId(R.id.appBarLayout))),
+        ViewInteraction bottomNavigationItemView = onView(
+                allOf(withId(R.id.nav_statistics), withContentDescription("Estadísticas"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.nav_view),
+                                        0),
+                                1),
                         isDisplayed()));
-        imageButton.check(matches(isDisplayed()));
+        bottomNavigationItemView.perform(click());
+
+        ViewInteraction frameLayout = onView(
+                allOf(withId(R.id.map),
+                        withParent(withParent(withId(R.id.fragment_container))),
+                        isDisplayed()));
+        frameLayout.check(matches(isDisplayed()));
+
 
         ViewInteraction appCompatImageButton = onView(
                 allOf(withId(R.id.btProfile),
@@ -112,11 +110,7 @@ public class LoginLogoutTest {
                         isDisplayed()));
         appCompatButton2.perform(click());
 
-        ViewInteraction button3 = onView(
-                allOf(withId(R.id.btGoogle), withText("GOOGLE"),
-                        withParent(withParent(withId(R.id.idLoginLayaut))),
-                        isDisplayed()));
-        button3.check(matches(isDisplayed()));
+
 
     }
 

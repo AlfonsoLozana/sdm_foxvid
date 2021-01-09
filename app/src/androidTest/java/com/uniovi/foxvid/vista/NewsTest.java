@@ -6,10 +6,15 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import androidx.test.espresso.ViewInteraction;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.rule.GrantPermissionRule;
 import androidx.test.runner.AndroidJUnit4;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiSelector;
 
 import com.uniovi.foxvid.R;
 
@@ -17,6 +22,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsInstanceOf;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,13 +41,25 @@ import static org.hamcrest.Matchers.is;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class HeatmapTest {
+public class NewsTest {
+
+    UiDevice mDevice;
+
+    @Before
+    public void before() {
+        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+    }
 
     @Rule
-    public ActivityScenarioRule<Login> mActivityTestRule = new ActivityScenarioRule<>(Login.class);
+    public ActivityTestRule<Login> mActivityTestRule = new ActivityTestRule<>(Login.class);
+
+    @Rule
+    public GrantPermissionRule mGrantPermissionRule =
+            GrantPermissionRule.grant(
+                    "android.permission.ACCESS_FINE_LOCATION");
 
     @Test
-    public void heatmapTest() {
+    public void newsTest() throws UiObjectNotFoundException {
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.btGoogle), withText("Google"),
                         childAtPosition(
@@ -52,21 +70,30 @@ public class HeatmapTest {
                         isDisplayed()));
         appCompatButton.perform(click());
 
+        UiObject mText = mDevice.findObject(new UiSelector().text("foxvidtest@gmail.com"));
+        mText.click();
+
+        ViewInteraction frameLayout = onView(
+                allOf(withId(R.id.nav_news), withContentDescription("Noticias"),
+                        withParent(withParent(withId(R.id.nav_view))),
+                        isDisplayed()));
+        frameLayout.check(matches(isDisplayed()));
+
         ViewInteraction bottomNavigationItemView = onView(
-                allOf(withId(R.id.nav_statistics), withContentDescription("Estadísticas"),
+                allOf(withId(R.id.nav_news), withContentDescription("Noticias"),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.nav_view),
                                         0),
-                                1),
+                                2),
                         isDisplayed()));
         bottomNavigationItemView.perform(click());
 
-        ViewInteraction view = onView(
-                allOf(withContentDescription("Google Maps"),
+        ViewInteraction recyclerView = onView(
+                allOf(withId(R.id.idRvNews),
                         withParent(withParent(IsInstanceOf.<View>instanceOf(android.widget.FrameLayout.class))),
                         isDisplayed()));
-        view.check(matches(isDisplayed()));
+        recyclerView.check(matches(isDisplayed()));
 
         ViewInteraction appCompatImageButton = onView(
                 allOf(withId(R.id.btProfile),
