@@ -151,14 +151,16 @@ public class MainActivity extends AppCompatActivity {
         customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         customDialog.setCancelable(true);
         customDialog.setContentView(R.layout.fragment_log_out);
-        customDialog.getWindow().setLayout(1050, 600);
+        //customDialog.getWindow().setLayout(1050, 600);
 
         TextView titulo = (TextView) customDialog.findViewById(R.id.txtUserDialog);
+        TextView email = (TextView) customDialog.findViewById(R.id.txtUserEmailDialog);
         ImageView imagenUser = (ImageView) customDialog.findViewById(R.id.idImgUserDialog);
 
         if (user != null) {
-            Picasso.get().load(user.getPhoto()).fit().into(imagenUser);
+            Picasso.get().load(user.getPhoto()).fit().transform(new CircleTransform()).into(imagenUser);;
             titulo.setText(user.getName());
+            email.setText(user.getEmail());
         } else
             titulo.setText("Usuario");
 

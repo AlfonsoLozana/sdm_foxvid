@@ -8,7 +8,7 @@
         android:title="@string/nav_bar_posts" />
     <item
         android:id="@+id/nav_statistics"
-        android:icon="@drawable/baseline_trending_down_black_18dp"
+        android:icon="@drawable/ic_baseline_map_24"
         android:title="@string/nav_bar_stadistics" />
     <item
         android:id="@+id/nav_news"

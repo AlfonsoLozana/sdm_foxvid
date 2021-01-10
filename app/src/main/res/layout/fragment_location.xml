@@ -31,7 +31,7 @@
             android:textAlignment="center"
             app:autoSizeTextType="uniform"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="#fff"
+            android:textColor="#000"
             android:text="@string/alertaUbicacion" />
     </LinearLayout>
 
