@@ -22,14 +22,14 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
-import com.uniovi.foxvid.LocationHandler;
+import com.uniovi.foxvid.utils.LocationHandler;
 import com.uniovi.foxvid.R;
-import com.uniovi.foxvid.SettingsActivity;
 import com.uniovi.foxvid.modelo.User;
+import com.uniovi.foxvid.utils.SettingsActivity;
 import com.uniovi.foxvid.vista.fragment.NewsFragment;
 import com.uniovi.foxvid.vista.fragment.PostFragment;
 import com.uniovi.foxvid.vista.fragment.StatisticsFragment;
-import com.uniovi.foxvid.vista.igu.CircleTransform;
+import com.uniovi.foxvid.utils.CircleTransform;
 
 import org.jetbrains.annotations.NotNull;
 

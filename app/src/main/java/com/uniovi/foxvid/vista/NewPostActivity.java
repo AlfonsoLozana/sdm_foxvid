@@ -17,7 +17,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.uniovi.foxvid.LocationHandler;
+import com.uniovi.foxvid.utils.LocationHandler;
 import com.uniovi.foxvid.R;
 
 import java.util.HashMap;

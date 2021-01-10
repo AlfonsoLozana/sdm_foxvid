@@ -48,29 +48,5 @@ public class DatabaseConnection {
 
     }
 
-    /*public void addPostDB(Post post) {
-        Map<String, Object> posts = new HashMap<>();
-        posts.put("title", post.getTitle());
-        posts.put("text", post.getText());
-        posts.put("uid", post.getUser().getUid());
-        posts.put("localization", post.getLocalization());
-        posts.put("date", post.getDate().toString());
-
-
-        db.collection("users").document(post.getUser().getUid()+post.getDate())
-                .set(posts)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Log.d(TAG, "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        //Log.w(TAG, "Error writing document", e);
-                    }
-                });
-    }*/
 
 }

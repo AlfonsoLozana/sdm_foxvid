@@ -1,4 +1,4 @@
-package com.uniovi.foxvid;
+package com.uniovi.foxvid.adapter;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,13 +21,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.squareup.picasso.Picasso;
+import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Post;
-import com.uniovi.foxvid.vista.MainActivity;
-import com.uniovi.foxvid.vista.igu.CircleTransform;
+import com.uniovi.foxvid.utils.CircleTransform;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -184,7 +183,7 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
         public void bindUser(final Post post) {
             postTxt.setText(post.getText());
             fecha.setText(getTime(post.getDate()));
-            user.setText(post.getUser().getEmail());
+            user.setText(post.getUser().getEmail().split("@")[0]);
             nLike.setText(post.getnLikes() + "");
             nDislike.setText(post.getnDislikes() + "");
             uuid.setText(post.getUuid());

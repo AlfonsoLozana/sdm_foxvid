@@ -1,4 +1,4 @@
-package com.uniovi.foxvid;
+package com.uniovi.foxvid.utils;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -25,6 +24,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentChange;
+import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Coordinate;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
