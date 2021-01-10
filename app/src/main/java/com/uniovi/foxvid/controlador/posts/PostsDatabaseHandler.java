@@ -60,18 +60,6 @@ public class PostsDatabaseHandler {
     public void updateValues(int distancia, final OnCompleteListener listener) {
         this.distancia = distancia;
         listPost = new ArrayList<>();
-        Query query =db.collection("post").orderBy("date");
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    addPost(task.getResult());
-
-                    adapter = new ListaPostAdapter(listPost);
-                    Log.d("PostsHandler", listPost.size() + "");
-                }
-            }
-        });
 
         db.collection("post")
                 .orderBy("date", Query.Direction.DESCENDING).get()
@@ -80,12 +68,9 @@ public class PostsDatabaseHandler {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     addPost(task.getResult());
-
                     adapter = new ListaPostAdapter(listPost);
-                    Log.d("PostsHandler", listPost.size()+"");
-//                    for (int i = 0; i < listPost.size(); i++) {
-//                            updateNumberOfLikes(i);
-//                    }
+
+
                 }
             }
         }).addOnCompleteListener(listener);
@@ -106,7 +91,7 @@ public class PostsDatabaseHandler {
     private void addPost(QuerySnapshot snapshots) {
         for (DocumentChange dc : snapshots.getDocumentChanges()) {
             if (dc.getType() == DocumentChange.Type.ADDED) {
-                if (checkPost(dc)) return;
+                if (!checkPost(dc)) return;
             }
         }
     }
@@ -149,7 +134,7 @@ public class PostsDatabaseHandler {
      * @param position, posición del post dentro del adapter, de tipo int
      * @param like,     indica si se ha dado like (1) o dislike (-1), de tipo int.
      */
-    public void updateLikes(final int position, int like/*, final OnCompleteListener listener*/) {
+    public void updateLikes(final int position, int like) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         //Referencia al documento que guarda la interacción de un usuario en un post
@@ -165,16 +150,16 @@ public class PostsDatabaseHandler {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("UpdateLikes", "Empieza update");
+                        Log.d("PostsHandler", "Empieza update");
                         //Se actualizan los likes del post en cuestión
-                        updateNumberOfLikes(position/*, listener*/);
+                        updateNumberOfLikes(position);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d("UpdateLikes", "Mal update" + e);
-                        Log.w("Error:", "Error al actualizar los likes", e);
+                        Log.d("PostsHandler", "Mal update" + e);
+                        Log.w("PostsHandler:", "Error al actualizar los likes", e);
                     }
                 });
     }
@@ -206,10 +191,10 @@ public class PostsDatabaseHandler {
                     adapter.notifyItemChanged(postPosition);
 
                 } else {
-                    Log.d("LikeCount", "Error getting documents: ", task.getException());
+                    Log.d("PostsHandler", "Error getting documents: ", task.getException());
                 }
             }
-        });/*.addOnCompleteListener(listener);*/
+        });
 
         //Llamada a la query para obtener los likes y contarlos
         queryDisike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -220,10 +205,10 @@ public class PostsDatabaseHandler {
                     listPost.get(postPosition).setnDislikes(numberOfDislikes);
                     adapter.notifyItemChanged(postPosition);
                 } else {
-                    Log.d("LikeCount", "Error getting documents: ", task.getException());
+                    Log.d("PostsHandler", "Error getting documents: ", task.getException());
                 }
             }
-        });/*.addOnCompleteListener(listener);*/
+        });
     }
 
 

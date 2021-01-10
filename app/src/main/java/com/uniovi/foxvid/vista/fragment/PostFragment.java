@@ -66,10 +66,7 @@ public class PostFragment extends Fragment {
     private List<Post> listPost;
 
     public int distancia = MIN_DISTANCE;
-    private ListaPostAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    private int numOfPost = -1;
-    private boolean cargando = false;
 
 
     RecyclerView listPostView;
@@ -151,11 +148,9 @@ public class PostFragment extends Fragment {
         };
 
         swipeRefreshLayout.setRefreshing(false);
-        cargando = false;
-
         handler.updateLocate(getActivity(), listener);
-
     }
+
 
     protected void loadPost() {
         listPostView.setHasFixedSize(true);
@@ -164,10 +159,6 @@ public class PostFragment extends Fragment {
         postsHandler.updateValues(distancia, new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
-//                listPost = postsHandler.getPosts();
-//                adapter = new ListaPostAdapter(listPost);
-//                listPostView.setAdapter(adapter);
-
                 listPostView.setAdapter(postsHandler.getAdapter());
                 postsHandler.updatePosts();
             }
@@ -179,72 +170,6 @@ public class PostFragment extends Fragment {
         Intent newPostIntent = new Intent(getActivity(), NewPostActivity.class);
         startActivity(newPostIntent);
     }
-
-//    private void updateValues() {
-//        listPost = new ArrayList<>();
-//        db.collection("post")
-//                .orderBy("date", Query.Direction.DESCENDING)
-//                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onEvent(@Nullable QuerySnapshot snapshots,
-//                                        @Nullable FirebaseFirestoreException e) {
-//                        if (e != null) {
-//                            //Log.w(TAG, "listen:error", e);
-//                            return;
-//                        }
-//                        addPost(snapshots);
-//
-//                        adapter = new ListaPostAdapter(listPost);
-//                        listPostView.setAdapter(adapter);
-//
-//                        for (int i = 0; i < listPost.size(); i++) {
-//                            updateNumberOfLikes(i);
-//                        }
-//                    }
-//                });
-//    }
-
-//    /**
-//     * Método que recorre los posts de la base de datos y los añade a la lista de post
-//     *
-//     * @param snapshots respuesta de la query ejecutada, de tipo QuerySnapshot
-//     */
-//    private void addPost(QuerySnapshot snapshots) {
-//        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-//            if (dc.getType() == DocumentChange.Type.ADDED) {
-//                if (!checkPost(dc)) return;
-//            }
-//        }
-//    }
-
-//    private boolean checkPost(DocumentChange dc) {
-//        if (handler.checkDistancia(dc, distancia)) {
-//            boolean existe = false;
-//            for (Post p : listPost) {
-//                if (p.getUuid().equals(dc.getDocument().get("uid")))
-//                    existe = true;
-//            }
-//            if (!existe) {
-//                if (listPost.size() > numOfPost && numOfPost != -1) {
-//                    return false;
-//                }
-//                listPost.add(crearPost(dc));
-//            }
-//        }
-//        return true;
-//    }
-
-//    private Post crearPost(DocumentChange dc) {
-//        return new Post(dc.getDocument().get("uid").toString(),
-//                dc.getDocument().get("post").toString(),
-//                //public User(String uid, String name, String email, Uri photo)
-//                new User(dc.getDocument().get("userUid").toString(), null, dc.getDocument().get("userEmail").toString(),
-//                        dc.getDocument().get("userImage").toString()),
-//                (Timestamp) dc.getDocument().get("date"),
-//                new Coordinate(valueOf(dc.getDocument().get("lat").toString()), Double.valueOf(dc.getDocument().get("lat").toString())),
-//                0,
-//                0);
-//    }
 
 
     /**
@@ -260,30 +185,15 @@ public class PostFragment extends Fragment {
 
             @Override
             public void onSwiped(@NotNull final RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                final int position = viewHolder.getLayoutPosition();
                 if (swipeDir == ItemTouchHelper.LEFT) {
                     //Si se desliza a la izquierda, se da dislike
-                    //updateLikes(viewHolder.getLayoutPosition(), -1);
-                    postsHandler.updateLikes(viewHolder.getLayoutPosition(), -1);//, new OnCompleteListener() {
-//                        @Override
-//                        public void onComplete(@NonNull Task task) {
-//                            listPost.get(position).setnDislikes(postsHandler.getNDislikes());
-//                            adapter.notifyItemChanged(position);
-//                        }
-//                    });
+                    postsHandler.updateLikes(viewHolder.getLayoutPosition(), -1);
+
                 } else {
                     //Si se desliza a la derecha, se da like
-                    //updateLikes(viewHolder.getLayoutPosition(), 1);
-                    postsHandler.updateLikes(viewHolder.getLayoutPosition(), 1);//, new OnCompleteListener() {
-//                        @Override
-//                        public void onComplete(@NonNull Task task) {
-//                            listPost.get(position).setnLikes(postsHandler.getNLikes());
-//                            adapter.notifyItemChanged(position);
-//                        }
-//                    });
+                    postsHandler.updateLikes(viewHolder.getLayoutPosition(), 1);
                 }
-                System.out.println(listPost.get(viewHolder.getLayoutPosition()).getText());
-                adapter.notifyItemChanged(viewHolder.getAdapterPosition());
+                postsHandler.getAdapter().notifyItemChanged(viewHolder.getAdapterPosition());
             }
 
             @Override

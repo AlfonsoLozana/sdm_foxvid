@@ -25,6 +25,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.squareup.picasso.Picasso;
 import com.uniovi.foxvid.R;
+import com.uniovi.foxvid.controlador.posts.PostsDatabaseHandler;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.utils.CircleTransform;
 
@@ -81,6 +82,8 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
         private ImageView userImage;
         private ImageButton btLikes;
         private ImageButton btDislikes;
+        private int position;
+        PostsDatabaseHandler postsHandler = new PostsDatabaseHandler();
 
         public PostViewHolder(View itemView) {
             super(itemView);
@@ -98,6 +101,7 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
             nLike = itemView.findViewById(R.id.txtLike);
             nDislike = itemView.findViewById(R.id.txtDislike);
 
+            position=this.getAdapterPosition();
 
             btLikes.setOnClickListener(new View.OnClickListener() {
                 @Override
