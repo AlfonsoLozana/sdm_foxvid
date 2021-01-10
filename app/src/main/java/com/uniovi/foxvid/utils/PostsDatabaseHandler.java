@@ -1,9 +1,8 @@
-package com.uniovi.foxvid.controlador.posts;
+package com.uniovi.foxvid.utils;
 
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -16,16 +15,16 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.adapter.ListaPostAdapter;
 import com.uniovi.foxvid.modelo.Coordinate;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.modelo.User;
-import com.uniovi.foxvid.utils.LocationHandler;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,17 +44,22 @@ public class PostsDatabaseHandler {
 
     private ListaPostAdapter adapter;
 
+    private static PostsDatabaseHandler postHandler = null;
+
+    public static PostsDatabaseHandler getPostsDatabaseHandler() {
+        if (postHandler == null) {
+            postHandler = new PostsDatabaseHandler();
+        }
+        return postHandler;
+    }
+
+    private PostsDatabaseHandler() {
+    }
+
     public List<Post> getPosts() {
         return this.listPost;
     }
 
-    public int getNDislikes() {
-        return this.numberOfDislikes;
-    }
-
-    public int getNLikes() {
-        return this.numberOfLikes;
-    }
 
     public void updateValues(int distancia, final OnCompleteListener listener) {
         this.distancia = distancia;
@@ -64,16 +68,16 @@ public class PostsDatabaseHandler {
         db.collection("post")
                 .orderBy("date", Query.Direction.DESCENDING).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    addPost(task.getResult());
-                    adapter = new ListaPostAdapter(listPost);
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            addPost(task.getResult());
+                            adapter = new ListaPostAdapter(listPost);
 
 
-                }
-            }
-        }).addOnCompleteListener(listener);
+                        }
+                    }
+                }).addOnCompleteListener(listener);
     }
 
 
@@ -118,11 +122,10 @@ public class PostsDatabaseHandler {
     private Post crearPost(DocumentChange dc) {
         return new Post(dc.getDocument().get("uid").toString(),
                 dc.getDocument().get("post").toString(),
-                //public User(String uid, String name, String email, Uri photo)
                 new User(dc.getDocument().get("userUid").toString(), null, dc.getDocument().get("userEmail").toString(),
                         dc.getDocument().get("userImage").toString()),
                 (Timestamp) dc.getDocument().get("date"),
-                new Coordinate(valueOf(dc.getDocument().get("lat").toString()), Double.valueOf(dc.getDocument().get("lat").toString())),
+                new Coordinate(valueOf(dc.getDocument().get("lat").toString()), Double.valueOf(dc.getDocument().get("lon").toString())),
                 0,
                 0);
     }
@@ -169,7 +172,6 @@ public class PostsDatabaseHandler {
      * Cuenta el número de likes de cada post y actualiza los contadores que aparecen en la tarjeta de la pantalla
      *
      * @param postPosition, posición del post del que se desean obtener las interacciones, de tipo int.
-     *
      */
     private void updateNumberOfLikes(final int postPosition/*, OnCompleteListener listener*/) {
         //Referencia a la colección de interacciones de un post
@@ -212,8 +214,6 @@ public class PostsDatabaseHandler {
     }
 
 
-
-
     public void publishPost(String text, OnSuccessListener successListener, OnFailureListener failureListener) {
 
         System.out.println("Debug: todo bien");
@@ -245,4 +245,35 @@ public class PostsDatabaseHandler {
     public ListaPostAdapter getAdapter() {
         return this.adapter;
     }
+
+
+    public void getLast24HoursPosts(OnCompleteListener listener) {
+        listPost= new ArrayList<>();
+        Timestamp yesterday = new Timestamp(new Date(System.currentTimeMillis() - 1000L * 60L * 60L * 24L));
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        //Se hace una petición a la base de datos para obtener los posts de las ultimas 24 horas
+        db.collection("post")
+                .orderBy("date", Query.Direction.ASCENDING)
+                .startAt(yesterday)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                listPost.add(new Post(document.get("uid").toString(),
+                                        document.get("post").toString(),
+                                        new User(document.get("userUid").toString(), null, document.get("userEmail").toString(),
+                                                document.get("userImage").toString()),
+                                        (Timestamp) document.get("date"),
+                                        new Coordinate(valueOf(document.get("lat").toString()), Double.valueOf(document.get("lon").toString())),
+                                        0,
+                                        0));
+                            }
+                        }
+                    }
+                }).addOnCompleteListener(listener);
+    }
+
 }

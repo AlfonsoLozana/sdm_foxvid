@@ -14,23 +14,16 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.uniovi.foxvid.controlador.posts.PostsDatabaseHandler;
+import com.uniovi.foxvid.utils.PostsDatabaseHandler;
 import com.uniovi.foxvid.utils.LocationHandler;
 import com.uniovi.foxvid.R;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class NewPostActivity extends AppCompatActivity {
 
     private TextView txtPost;
 
     LocationHandler locationHandler = LocationHandler.getLocationHandler();
-    PostsDatabaseHandler postsHandler = new PostsDatabaseHandler();
+    PostsDatabaseHandler postsHandler = PostsDatabaseHandler.getPostsDatabaseHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +36,7 @@ public class NewPostActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        txtPost = (TextView) findViewById(R.id.txtNewPost);
+        txtPost = findViewById(R.id.txtNewPost);
         locationHandler.updateLocate(this, null);
 
 
@@ -107,39 +100,9 @@ public class NewPostActivity extends AppCompatActivity {
 
                         }
                     });
-//            FirebaseFirestore db = FirebaseFirestore.getInstance();
-//
-//            //se obtienen todos los datos necesarios para hacer el post y se añaden en un mapa.
-//            String uuid = UUID.randomUUID().toString();
-//            Map<String, Object> posts = new HashMap<>();
-//            posts.put("uid", uuid);
-//            posts.put("post", txtPost.getText().toString());
-//            posts.put("userUid", FirebaseAuth.getInstance().getCurrentUser().getUid());
-//            posts.put("userEmail", FirebaseAuth.getInstance().getCurrentUser().getEmail());
-//            posts.put("userImage", FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString());
-//            posts.put("date", Timestamp.now());
-//            posts.put("lat", locationHandler.getUserCoordinate().getLat());
-//            posts.put("lon", locationHandler.getUserCoordinate().getLon());
-//            posts.put("nLikes", 0);
-//            posts.put("nDislikes", 0);
+
             txtPost.setText("");
 
-//            //Se hace la llamada a la base de datos para añadir un nuevo post.
-//            db.collection("post").document(uuid)
-//                    .set(posts)
-//                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                        @Override
-//                        public void onSuccess(Void aVoid) {
-//                            showSnackbar(R.string.successful_post_upload);
-//                        }
-//                    })
-//                    .addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(@NonNull Exception e) {
-//                            showSnackbar(R.string.failure_post_upload);
-//
-//                        }
-//                    });
         }
     }
 

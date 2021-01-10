@@ -1,7 +1,6 @@
 package com.uniovi.foxvid.adapter;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,28 +11,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 import com.squareup.picasso.Picasso;
 import com.uniovi.foxvid.R;
-import com.uniovi.foxvid.controlador.posts.PostsDatabaseHandler;
+import com.uniovi.foxvid.utils.PostsDatabaseHandler;
 import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.utils.CircleTransform;
 
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.PostViewHolder> {
 
@@ -57,7 +42,7 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
     public void onBindViewHolder(@NonNull ListaPostAdapter.PostViewHolder holder, int position) {
         Post post = posts.get(position);
 
-        Log.i("Lista", "Visualiza elemento: " + post);
+        holder.setPosition(position);
         holder.bindUser(post);
 
     }
@@ -72,7 +57,6 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
 
         private FirebaseFirestore db;
 
-        String postId;
         private TextView postTxt;
         private TextView fecha;
         private TextView uuid;
@@ -82,8 +66,8 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
         private ImageView userImage;
         private ImageButton btLikes;
         private ImageButton btDislikes;
-        private int position;
-        PostsDatabaseHandler postsHandler = new PostsDatabaseHandler();
+        private int position =0;
+        PostsDatabaseHandler postsHandler = PostsDatabaseHandler.getPostsDatabaseHandler();
 
         public PostViewHolder(View itemView) {
             super(itemView);
@@ -101,87 +85,27 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
             nLike = itemView.findViewById(R.id.txtLike);
             nDislike = itemView.findViewById(R.id.txtDislike);
 
-            position=this.getAdapterPosition();
 
             btLikes.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    updateLikes(1);
-//                        like(uuid.getText().toString(),Integer.parseInt(nLike.getText().toString()));
+                    postsHandler.updateLikes(position, 1);
                 }
             });
 
             btDislikes.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    updateLikes(-1);
-//                        disLike(uuid.getText().toString(),Integer.parseInt(nDislike.getText().toString()));
+                    postsHandler.updateLikes(position, -1);
+
                 }
             });
 
         }
 
-        private void updateLikes(int like) {
-            postId = uuid.getText().toString();
-            String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-            DocumentReference postRef = db.collection("post").document(postId)
-                    .collection("interactions").document(userId);
-
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("like", like);
-
-
-            postRef.set(data, SetOptions.merge())
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("UpdateLikes", "Empieza update");
-                            updateNumberOfLikes();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d("UpdateLikes", "Mal update" + e);
-                            Log.w("Error:", "Error al actualizar los likes", e);
-                        }
-                    });
+        public void setPosition(int position){
+            this.position=position;
         }
-
-
-        private void updateNumberOfLikes() {
-            final CollectionReference likeRef = db.collection("post").document(postId).collection("interactions");
-            final Query queryLike = likeRef.whereEqualTo("like", 1);
-            final Query queryDisike = likeRef.whereEqualTo("like", -1);
-
-            queryLike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        int numberOfLikes = Objects.requireNonNull(task.getResult()).size();
-                        nLike.setText(numberOfLikes+"");
-
-                    }
-
-                }
-            });
-
-            queryDisike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        int numberOfDislikes = Objects.requireNonNull(task.getResult()).size();
-                        nDislike.setText(numberOfDislikes+"");
-
-                    }
-
-                }
-            });
-        }
-
 
         // asignar valores a los componentes
         @SuppressLint("SetTextI18n")

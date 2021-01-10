@@ -26,6 +26,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
+import com.uniovi.foxvid.utils.PostsDatabaseHandler;
+import com.uniovi.foxvid.modelo.Post;
 import com.uniovi.foxvid.utils.LocationHandler;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Coordinate;
@@ -41,8 +43,8 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
     LatLng centro;
     List<LatLng> latLngs = new ArrayList<>();
 
-    LocationHandler handler = LocationHandler.getLocationHandler();
-
+    LocationHandler locationHandler = LocationHandler.getLocationHandler();
+    PostsDatabaseHandler postsHandler = PostsDatabaseHandler.getPostsDatabaseHandler();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,13 +86,13 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
             public void onSuccess(Location location) {
                 // Got last known location. In some rare situations this can be null.
                 if (location != null) {
-                    setCentro(handler.getUserCoordinate());
+                    setCentro(locationHandler.getUserCoordinate());
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(centro, 6.2F));
                 }
             }
         };
 
-        handler.updateLocate(getActivity(), listener);
+        locationHandler.updateLocate(getActivity(), listener);
 
         createHeatmapLayer();
 
@@ -106,44 +108,34 @@ public class StatisticsFragment extends Fragment implements OnMapReadyCallback {
      * están realizando más publicaciones.
      */
     private void createHeatmapLayer() {
-        Timestamp yesterday = new Timestamp(new Date(System.currentTimeMillis() - 1000L * 60L * 60L * 24L));
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        //Se hace una petición a la base de datos para obtener los posts de las ultimas 24 horas
-        db.collection("post")
-                .orderBy("date", Query.Direction.ASCENDING)
-                .startAt(yesterday)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
+        OnCompleteListener listener = new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                for(Post post: postsHandler.getPosts()){
+                    latLngs.add(
+                            new LatLng(
+                                    post.getLocalization().getLat(),
+                                    post.getLocalization().getLon()
+                            )
+                    );
+                }
+                if(latLngs.size() > 0) {
+                    //Se crea el proveedor de la capa con las coordenadas obtenidas
+                    HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
+                            .data(latLngs)
+                            .build();
 
-                                //Se añaden las coordenadas a una lista
-                                latLngs.add(
-                                        new LatLng(
-                                                Double.parseDouble(document.getData().get("lat").toString()),
-                                                Double.parseDouble(document.getData().get("lon").toString())
-                                        )
-                                );
-                            }
-                            if(latLngs.size() > 0) {
-                                //Se crea el proveedor de la capa con las coordenadas obtenidas
-                                HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
-                                        .data(latLngs)
-                                        .build();
+                    //Se añade la capa al mapa
+                    mMap.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+                }else{
+                    Toast.makeText(getContext(), R.string.error_mapa, Toast.LENGTH_LONG).show();
+                }
+            }
+        };
 
-                                //Se añade la capa al mapa
-                                mMap.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
-                            }else{
-                                Toast.makeText(getContext(), R.string.error_mapa, Toast.LENGTH_LONG).show();
-                            }
-                        } else {
-                            Log.d("PostsMapa", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
+        postsHandler.getLast24HoursPosts(listener);
+
     }
 
 

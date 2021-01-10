@@ -146,7 +146,7 @@ public class LocationHandler {
             customDialog.getWindow().setLayout(1070, 850);
 
 
-            ((Button) customDialog.findViewById(R.id.btLocation)).setOnClickListener(new View.OnClickListener() {
+            customDialog.findViewById(R.id.btLocation).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     customDialog.cancel();
