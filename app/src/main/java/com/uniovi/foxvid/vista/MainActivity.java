@@ -28,7 +28,7 @@ import com.uniovi.foxvid.utils.LocationHandler;
 import com.uniovi.foxvid.utils.SettingsActivity;
 import com.uniovi.foxvid.vista.fragment.NewsFragment;
 import com.uniovi.foxvid.vista.fragment.PostFragment;
-import com.uniovi.foxvid.vista.fragment.StatisticsFragment;
+import com.uniovi.foxvid.vista.fragment.MapFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadStatistics() {
-        StatisticsFragment info = new StatisticsFragment();
+        MapFragment info = new MapFragment();
         Bundle args = new Bundle();
         info.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, info).commit();
