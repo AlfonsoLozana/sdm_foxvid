@@ -3,8 +3,33 @@ package com.uniovi.foxvid.modelo;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+import com.uniovi.foxvid.adapter.ListaPostAdapter;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Post implements Parcelable {
 
@@ -120,6 +145,23 @@ public class Post implements Parcelable {
         parcel.writeParcelable(user,i);
         parcel.writeParcelable(date,i);
         parcel.writeParcelable(localization,i);
+    }
+
+
+    public String getTime() {
+        long diferencia = new Date().getTime() - getDate().toDate().getTime();
+        long segundos = TimeUnit.MILLISECONDS.toSeconds(diferencia);
+        if (segundos < 0) {
+            return 0 + " s";
+        } else if (segundos < 60) {
+            return segundos + " s";
+        } else if (segundos < 3600)
+            return TimeUnit.MILLISECONDS.toMinutes(diferencia) + " min";
+        else if (segundos < 86400)
+            return TimeUnit.MILLISECONDS.toHours(diferencia) + " h";
+        else
+            return TimeUnit.MILLISECONDS.toDays(diferencia) + " d";
+
     }
 
 
