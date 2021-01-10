@@ -1,5 +1,6 @@
 package com.uniovi.foxvid;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,25 +16,21 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.squareup.picasso.Picasso;
 import com.uniovi.foxvid.modelo.Post;
-import com.uniovi.foxvid.vista.MainActivity;
 import com.uniovi.foxvid.vista.igu.CircleTransform;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 
 public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.PostViewHolder> {
 
@@ -89,15 +86,15 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
             db = FirebaseFirestore.getInstance();
 
 
-            postTxt = (TextView) itemView.findViewById(R.id.txtPost);
-            fecha = (TextView) itemView.findViewById(R.id.txtDatePost);
-            user = (TextView) itemView.findViewById(R.id.txtUserPublisher);
-            userImage = (ImageView) itemView.findViewById(R.id.idImagePost);
-            uuid = (TextView) itemView.findViewById(R.id.idUuidLikes);
-            btLikes = (ImageButton) itemView.findViewById(R.id.btLike);
-            btDislikes = (ImageButton) itemView.findViewById(R.id.btDislike);
-            nLike = (TextView) itemView.findViewById(R.id.txtLike);
-            nDislike = (TextView) itemView.findViewById(R.id.txtDislike);
+            postTxt = itemView.findViewById(R.id.txtPost);
+            fecha = itemView.findViewById(R.id.txtDatePost);
+            user = itemView.findViewById(R.id.txtUserPublisher);
+            userImage = itemView.findViewById(R.id.idImagePost);
+            uuid = itemView.findViewById(R.id.idUuidLikes);
+            btLikes = itemView.findViewById(R.id.btLike);
+            btDislikes = itemView.findViewById(R.id.btDislike);
+            nLike = itemView.findViewById(R.id.txtLike);
+            nDislike = itemView.findViewById(R.id.txtDislike);
 
 
             btLikes.setOnClickListener(new View.OnClickListener() {
@@ -120,7 +117,7 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
 
         private void updateLikes(int like) {
             postId = uuid.getText().toString();
-            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
             DocumentReference postRef = db.collection("post").document(postId)
                     .collection("interactions").document(userId);
 
@@ -153,62 +150,45 @@ public class ListaPostAdapter extends RecyclerView.Adapter<ListaPostAdapter.Post
             final Query queryDisike = likeRef.whereEqualTo("like", -1);
 
             queryLike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        int numberOfLikes = task.getResult().size();
+                        int numberOfLikes = Objects.requireNonNull(task.getResult()).size();
                         nLike.setText(numberOfLikes+"");
 
-                    } else {
-                        //Log.d(TAG, "Error getting documents: ", task.getException());
                     }
+
                 }
             });
 
             queryDisike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        int numberOfDislikes = task.getResult().size();
+                        int numberOfDislikes = Objects.requireNonNull(task.getResult()).size();
                         nDislike.setText(numberOfDislikes+"");
 
-                    } else {
-                        //Log.d(TAG, "Error getting documents: ", task.getException());
                     }
+
                 }
             });
         }
 
 
         // asignar valores a los componentes
+        @SuppressLint("SetTextI18n")
         public void bindUser(final Post post) {
             postTxt.setText(post.getText());
-            fecha.setText(getTime(post.getDate()));
+            fecha.setText(post.getTime());
             user.setText(post.getUser().getEmail());
             nLike.setText(post.getnLikes() + "");
             nDislike.setText(post.getnDislikes() + "");
             uuid.setText(post.getUuid());
             Picasso.get().load(post.getUser().getPhoto()).transform(new CircleTransform()).into(userImage);
 
-
         }
-
-        private String getTime(Timestamp t) {
-            long diferencia = new Date().getTime() - t.toDate().getTime();
-            long segundos = TimeUnit.MILLISECONDS.toSeconds(diferencia);
-            if (segundos < 0) {
-                return 0 + " s";
-            } else if (segundos <= 60) {
-                return segundos + " s";
-            } else if (segundos <= 3600)
-                return TimeUnit.MILLISECONDS.toMinutes(diferencia) + " min";
-            else if (segundos <= 86400)
-                return TimeUnit.MILLISECONDS.toHours(diferencia) + " h";
-            else
-                return TimeUnit.MILLISECONDS.toDays(diferencia) + " d";
-
-        }
-
 
     }
 
