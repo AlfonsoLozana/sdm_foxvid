@@ -41,6 +41,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.uniovi.foxvid.adapter.ListaPostAdapter;
+import com.uniovi.foxvid.controlador.posts.PostsDatabaseHandler;
 import com.uniovi.foxvid.utils.LocationHandler;
 import com.uniovi.foxvid.R;
 import com.uniovi.foxvid.modelo.Coordinate;
@@ -60,14 +61,13 @@ import static java.lang.Double.valueOf;
 
 public class PostFragment extends Fragment {
 
-    private static final int MIN_DISTANCE=10;
+    private static final int MIN_DISTANCE = 10;
 
     private List<Post> listPost;
 
-    public int distancia=MIN_DISTANCE;
+    public int distancia = MIN_DISTANCE;
     private ListaPostAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private int numOfPost = -1;
     private boolean cargando = false;
 
@@ -82,6 +82,8 @@ public class PostFragment extends Fragment {
 
 
     LocationHandler handler = LocationHandler.getLocationHandler();
+    PostsDatabaseHandler postsHandler = new PostsDatabaseHandler();
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -159,7 +161,17 @@ public class PostFragment extends Fragment {
         listPostView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getContext());
         listPostView.setLayoutManager(layoutManager);
-        updateValues();
+        postsHandler.updateValues(distancia, new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+//                listPost = postsHandler.getPosts();
+//                adapter = new ListaPostAdapter(listPost);
+//                listPostView.setAdapter(adapter);
+
+                listPostView.setAdapter(postsHandler.getAdapter());
+                postsHandler.updatePosts();
+            }
+        });
 
     }
 
@@ -168,71 +180,71 @@ public class PostFragment extends Fragment {
         startActivity(newPostIntent);
     }
 
-    private void updateValues() {
-        listPost = new ArrayList<>();
-        db.collection("post")
-                .orderBy("date", Query.Direction.DESCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot snapshots,
-                                        @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            //Log.w(TAG, "listen:error", e);
-                            return;
-                        }
-                        addPost(snapshots);
+//    private void updateValues() {
+//        listPost = new ArrayList<>();
+//        db.collection("post")
+//                .orderBy("date", Query.Direction.DESCENDING)
+//                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onEvent(@Nullable QuerySnapshot snapshots,
+//                                        @Nullable FirebaseFirestoreException e) {
+//                        if (e != null) {
+//                            //Log.w(TAG, "listen:error", e);
+//                            return;
+//                        }
+//                        addPost(snapshots);
+//
+//                        adapter = new ListaPostAdapter(listPost);
+//                        listPostView.setAdapter(adapter);
+//
+//                        for (int i = 0; i < listPost.size(); i++) {
+//                            updateNumberOfLikes(i);
+//                        }
+//                    }
+//                });
+//    }
 
-                        adapter = new ListaPostAdapter(listPost);
-                        listPostView.setAdapter(adapter);
+//    /**
+//     * Método que recorre los posts de la base de datos y los añade a la lista de post
+//     *
+//     * @param snapshots respuesta de la query ejecutada, de tipo QuerySnapshot
+//     */
+//    private void addPost(QuerySnapshot snapshots) {
+//        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+//            if (dc.getType() == DocumentChange.Type.ADDED) {
+//                if (!checkPost(dc)) return;
+//            }
+//        }
+//    }
 
-                        for (int i = 0; i < listPost.size(); i++) {
-                            updateNumberOfLikes(i);
-                        }
-                    }
-                });
-    }
+//    private boolean checkPost(DocumentChange dc) {
+//        if (handler.checkDistancia(dc, distancia)) {
+//            boolean existe = false;
+//            for (Post p : listPost) {
+//                if (p.getUuid().equals(dc.getDocument().get("uid")))
+//                    existe = true;
+//            }
+//            if (!existe) {
+//                if (listPost.size() > numOfPost && numOfPost != -1) {
+//                    return false;
+//                }
+//                listPost.add(crearPost(dc));
+//            }
+//        }
+//        return true;
+//    }
 
-    /**
-     * Método que recorre los posts de la base de datos y los añade a la lista de post
-     * @param snapshots respuesta de la query ejecutada, de tipo QuerySnapshot
-     */
-    private void addPost(QuerySnapshot snapshots){
-        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-            if (dc.getType() == DocumentChange.Type.ADDED) {
-                if (!checkPost(dc)) return;
-            }
-        }
-    }
-
-    private boolean checkPost(DocumentChange dc){
-        if (handler.checkDistancia(dc, distancia)) {
-            boolean existe = false;
-            for (Post p : listPost) {
-                if (p.getUuid().equals(dc.getDocument().get("uid")))
-                    existe = true;
-            }
-            if (!existe) {
-                if(listPost.size() > numOfPost && numOfPost != -1){
-                    return false;
-                }
-                listPost.add(crearPost(dc));
-            }
-        }
-        return true;
-    }
-
-    private Post crearPost(DocumentChange dc){
-        return new Post(dc.getDocument().get("uid").toString(),
-                dc.getDocument().get("post").toString(),
-                //public User(String uid, String name, String email, Uri photo)
-                new User(dc.getDocument().get("userUid").toString(), null, dc.getDocument().get("userEmail").toString(),
-                        dc.getDocument().get("userImage").toString()),
-                (Timestamp) dc.getDocument().get("date"),
-                new Coordinate(valueOf(dc.getDocument().get("lat").toString()), Double.valueOf(dc.getDocument().get("lat").toString())),
-                0,
-                0);
-    }
-
+//    private Post crearPost(DocumentChange dc) {
+//        return new Post(dc.getDocument().get("uid").toString(),
+//                dc.getDocument().get("post").toString(),
+//                //public User(String uid, String name, String email, Uri photo)
+//                new User(dc.getDocument().get("userUid").toString(), null, dc.getDocument().get("userEmail").toString(),
+//                        dc.getDocument().get("userImage").toString()),
+//                (Timestamp) dc.getDocument().get("date"),
+//                new Coordinate(valueOf(dc.getDocument().get("lat").toString()), Double.valueOf(dc.getDocument().get("lat").toString())),
+//                0,
+//                0);
+//    }
 
 
     /**
@@ -247,13 +259,29 @@ public class PostFragment extends Fragment {
             }
 
             @Override
-            public void onSwiped(@NotNull RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                if (swipeDir == ItemTouchHelper.LEFT)
+            public void onSwiped(@NotNull final RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                final int position = viewHolder.getLayoutPosition();
+                if (swipeDir == ItemTouchHelper.LEFT) {
                     //Si se desliza a la izquierda, se da dislike
-                    updateLikes(viewHolder.getLayoutPosition(), -1);
-                else
+                    //updateLikes(viewHolder.getLayoutPosition(), -1);
+                    postsHandler.updateLikes(viewHolder.getLayoutPosition(), -1);//, new OnCompleteListener() {
+//                        @Override
+//                        public void onComplete(@NonNull Task task) {
+//                            listPost.get(position).setnDislikes(postsHandler.getNDislikes());
+//                            adapter.notifyItemChanged(position);
+//                        }
+//                    });
+                } else {
                     //Si se desliza a la derecha, se da like
-                    updateLikes(viewHolder.getLayoutPosition(), 1);
+                    //updateLikes(viewHolder.getLayoutPosition(), 1);
+                    postsHandler.updateLikes(viewHolder.getLayoutPosition(), 1);//, new OnCompleteListener() {
+//                        @Override
+//                        public void onComplete(@NonNull Task task) {
+//                            listPost.get(position).setnLikes(postsHandler.getNLikes());
+//                            adapter.notifyItemChanged(position);
+//                        }
+//                    });
+                }
                 System.out.println(listPost.get(viewHolder.getLayoutPosition()).getText());
                 adapter.notifyItemChanged(viewHolder.getAdapterPosition());
             }
@@ -303,82 +331,82 @@ public class PostFragment extends Fragment {
     }
 
 
-    /**
-     * Método que actualiza los likes o dislikes que tiene un post
-     * @param position, posición del post dentro del adapter, de tipo int
-     * @param like, indica si se ha dado like (1) o dislike (-1), de tipo int.
-     */
-    private void updateLikes(final int position, int like) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//    /**
+//     * Método que actualiza los likes o dislikes que tiene un post
+//     * @param position, posición del post dentro del adapter, de tipo int
+//     * @param like, indica si se ha dado like (1) o dislike (-1), de tipo int.
+//     */
+//    private void updateLikes(final int position, int like) {
+//        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//
+//        //Referencia al documento que guarda la interacción de un usuario en un post
+//        DocumentReference postRef = db.collection("post").document(listPost.get(position).getUuid())
+//                .collection("interactions").document(userId);
+//
+//
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("like", like);
+//
+//        //Se hace la petición de escritura/actualización a firebase
+//        postRef.set(data, SetOptions.merge())
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        Log.d("UpdateLikes", "Empieza update");
+//                        //Se actualizan los likes del post en cuestión
+//                        updateNumberOfLikes(position);
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.d("UpdateLikes", "Mal update" + e);
+//                        Log.w("Error:", "Error al actualizar los likes", e);
+//                    }
+//                });
+//    }
 
-        //Referencia al documento que guarda la interacción de un usuario en un post
-        DocumentReference postRef = db.collection("post").document(listPost.get(position).getUuid())
-                .collection("interactions").document(userId);
 
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("like", like);
-
-        //Se hace la petición de escritura/actualización a firebase
-        postRef.set(data, SetOptions.merge())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("UpdateLikes", "Empieza update");
-                        //Se actualizan los likes del post en cuestión
-                        updateNumberOfLikes(position);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("UpdateLikes", "Mal update" + e);
-                        Log.w("Error:", "Error al actualizar los likes", e);
-                    }
-                });
-    }
-
-
-    /**
-     * Cuenta el número de likes de cada post y actualiza los contadores que aparecen en la tarjeta de la pantalla
-     * @param postPosition, posición del post del que se desean obtener las interacciones, de tipo int.
-     */
-    private void updateNumberOfLikes(final int postPosition) {
-        //Referencia a la colección de interacciones de un post
-        CollectionReference likeRef = db.collection("post").document(listPost.get(postPosition).getUuid()).collection("interactions");
-
-        //Query para obtener el numero de likes
-        Query queryLike = likeRef.whereEqualTo("like", 1);
-
-        //Query para obtener el numero de dislikes
-        Query queryDisike = likeRef.whereEqualTo("like", -1);
-
-            //Llamada a la query para obtener los likes y contarlos
-            queryLike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful() && listPost.size()!= 0) {
-                        int numberOfLikes = task.getResult().size();
-                        listPost.get(postPosition).setnLikes(numberOfLikes);
-                        adapter.notifyItemChanged(postPosition);
-                    } else {
-                        Log.d("LikeCount", "Error getting documents: ", task.getException());
-                    }
-                }
-            });
-
-            //Llamada a la query para obtener los likes y contarlos
-            queryDisike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful() && listPost.size()!= 0) {
-                        int numberOfDislikes = task.getResult().size();
-                        listPost.get(postPosition).setnDislikes(numberOfDislikes);
-                        adapter.notifyItemChanged(postPosition);
-                    } else {
-                        Log.d("LikeCount", "Error getting documents: ", task.getException());
-                    }
-                }
-            });
-    }
+//    /**
+//     * Cuenta el número de likes de cada post y actualiza los contadores que aparecen en la tarjeta de la pantalla
+//     * @param postPosition, posición del post del que se desean obtener las interacciones, de tipo int.
+//     */
+//    private void updateNumberOfLikes(final int postPosition) {
+//        //Referencia a la colección de interacciones de un post
+//        CollectionReference likeRef = db.collection("post").document(listPost.get(postPosition).getUuid()).collection("interactions");
+//
+//        //Query para obtener el numero de likes
+//        Query queryLike = likeRef.whereEqualTo("like", 1);
+//
+//        //Query para obtener el numero de dislikes
+//        Query queryDisike = likeRef.whereEqualTo("like", -1);
+//
+//            //Llamada a la query para obtener los likes y contarlos
+//            queryLike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                @Override
+//                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                    if (task.isSuccessful() && listPost.size()!= 0) {
+//                        int numberOfLikes = task.getResult().size();
+//                        listPost.get(postPosition).setnLikes(numberOfLikes);
+//                        adapter.notifyItemChanged(postPosition);
+//                    } else {
+//                        Log.d("LikeCount", "Error getting documents: ", task.getException());
+//                    }
+//                }
+//            });
+//
+//            //Llamada a la query para obtener los likes y contarlos
+//            queryDisike.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                @Override
+//                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                    if (task.isSuccessful() && listPost.size()!= 0) {
+//                        int numberOfDislikes = task.getResult().size();
+//                        listPost.get(postPosition).setnDislikes(numberOfDislikes);
+//                        adapter.notifyItemChanged(postPosition);
+//                    } else {
+//                        Log.d("LikeCount", "Error getting documents: ", task.getException());
+//                    }
+//                }
+//            });
+//    }
 }

@@ -1,4 +1,4 @@
-package com.uniovi.foxvid.controlador;
+package com.uniovi.foxvid.controlador.auth;
 
 import android.net.Uri;
 
