@@ -19,7 +19,7 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".vista.MainActivity" />
-        <activity android:name=".SettingsActivity"
+        <activity android:name=".utils.SettingsActivity"
             android:parentActivityName=".vista.MainActivity"
             android:label= "Ajustes"
             android:windowSoftInputMode="adjustResize"/>

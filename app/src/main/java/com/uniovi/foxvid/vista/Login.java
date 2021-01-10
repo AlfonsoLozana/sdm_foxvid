@@ -40,7 +40,6 @@ public class Login extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
-    private FusedLocationProviderClient fusedLocationClient;
 
     //Componentes
     Button loginButton;
@@ -165,7 +164,7 @@ public class Login extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
 
             // Google Sign In was successful, authenticate with Firebase
-            GoogleSignInAccount account = null;
+            GoogleSignInAccount account;
             try {
                 account = task.getResult(ApiException.class);
                 AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);

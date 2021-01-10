@@ -5,7 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.firebase.auth.FirebaseUser;
-import com.uniovi.foxvid.controlador.DatabaseConnection;
+import com.uniovi.foxvid.controlador.auth.DatabaseConnection;
 
 public class User implements Parcelable {
 

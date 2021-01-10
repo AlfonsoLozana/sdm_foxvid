@@ -9,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,14 +21,14 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
-import com.uniovi.foxvid.LocationHandler;
 import com.uniovi.foxvid.R;
-import com.uniovi.foxvid.SettingsActivity;
 import com.uniovi.foxvid.modelo.User;
+import com.uniovi.foxvid.utils.CircleTransform;
+import com.uniovi.foxvid.utils.LocationHandler;
+import com.uniovi.foxvid.utils.SettingsActivity;
 import com.uniovi.foxvid.vista.fragment.NewsFragment;
 import com.uniovi.foxvid.vista.fragment.PostFragment;
-import com.uniovi.foxvid.vista.fragment.StatisticsFragment;
-import com.uniovi.foxvid.vista.igu.CircleTransform;
+import com.uniovi.foxvid.vista.fragment.MapFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        btProfile = (ImageButton) findViewById(R.id.btProfile);
+        btProfile = findViewById(R.id.btProfile);
 
 
         Picasso.get().load(user.getPhoto()).fit().transform(new CircleTransform()).into(btProfile);
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        btSettings = (ImageButton) findViewById(R.id.btSettings);
+        btSettings = findViewById(R.id.btSettings);
         btSettings.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -94,8 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 if (locationResult != null) {
                     loadPostView();
                 }
-                else
-                    return;
+
             }
         };
 
@@ -106,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         handler.stopLocationUpdates();
+        if(customDialog!=null)
+            customDialog.dismiss();
     }
 
 
@@ -146,36 +146,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @SuppressLint("SetTextI18n")
     private void openPopUpWindow() {
         customDialog = new Dialog(this);
         customDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         customDialog.setCancelable(true);
         customDialog.setContentView(R.layout.fragment_log_out);
-        customDialog.getWindow().setLayout(1050, 600);
+        //customDialog.getWindow().setLayout(1050, 600);
 
-        TextView titulo = (TextView) customDialog.findViewById(R.id.txtUserDialog);
-        ImageView imagenUser = (ImageView) customDialog.findViewById(R.id.idImgUserDialog);
+        TextView titulo = customDialog.findViewById(R.id.txtUserDialog);
+        TextView email = customDialog.findViewById(R.id.txtUserEmailDialog);
+        ImageView imagenUser =  customDialog.findViewById(R.id.idImgUserDialog);
 
         if (user != null) {
-            Picasso.get().load(user.getPhoto()).fit().into(imagenUser);
+            Picasso.get().load(user.getPhoto()).fit().transform(new CircleTransform()).into(imagenUser);
             titulo.setText(user.getName());
+            email.setText(user.getEmail());
         } else
             titulo.setText("Usuario");
 
 
-        ((Button) customDialog.findViewById(R.id.btnLogOut)).setOnClickListener(new View.OnClickListener() {
+        ( customDialog.findViewById(R.id.btnLogOut)).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
+                customDialog.dismiss();
                 logOut();
 
             }
         });
 
-        ((Button) customDialog.findViewById(R.id.cancelar)).setOnClickListener(new View.OnClickListener() {
+        ( customDialog.findViewById(R.id.cancelar)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                customDialog.cancel();
+                customDialog.dismiss();
             }
         });
 
@@ -201,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadStatistics() {
-        StatisticsFragment info = new StatisticsFragment();
+        MapFragment info = new MapFragment();
         Bundle args = new Bundle();
         info.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, info).commit();
@@ -209,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void logOut() {
+
         FirebaseAuth.getInstance().signOut();
         loadLogActivity();
     }
@@ -220,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+    private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @SuppressLint("NonConstantResourceId")

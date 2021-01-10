@@ -1,4 +1,4 @@
-package com.uniovi.foxvid.vista.igu;
+package com.uniovi.foxvid.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;

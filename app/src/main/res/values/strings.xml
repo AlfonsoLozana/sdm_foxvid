@@ -43,7 +43,7 @@
     <string name="settings_unit">Km</string>
     <string name="settings_title">Here comes the title</string>
     <string name="nav_bar_posts">Publicaciones</string>
-    <string name="nav_bar_stadistics">Estadísticas</string>
+    <string name="nav_bar_stadistics">Actividad</string>
     <string name="nav_bar_news">Noticias</string>
     <string name="location_permission_not_given_message">Se requiere permisos de localización</string>
     <string name="imagen_noticia">Imagen de la noticia</string>

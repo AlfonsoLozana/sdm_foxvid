@@ -6,7 +6,6 @@ import android.os.Parcelable;
 
 public class Coordinate implements Parcelable {
 
-    public static float  DISTANCE = 4000;
     private Double lat;
     private Double lon;
 

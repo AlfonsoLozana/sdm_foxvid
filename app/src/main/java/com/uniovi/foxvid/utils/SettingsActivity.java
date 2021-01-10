@@ -1,4 +1,4 @@
-package com.uniovi.foxvid;
+package com.uniovi.foxvid.utils;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,6 +14,8 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.SeekBarPreference;
+
+import com.uniovi.foxvid.R;
 
 public class SettingsActivity extends AppCompatActivity {
 
